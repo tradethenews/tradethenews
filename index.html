@@ -1836,15 +1836,15 @@ setInterval(function(){ fetchDailyBrief(); }, 300000);
 // 4. Go to Authentication → Settings → Enable "Magic Link" sign-in
 // 5. Paste your credentials below:
 
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://ovhiahqwnqlcbgamimio.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im92aGlhaHF3bnFsY2JnYW1pbWlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwNzc2OTMsImV4cCI6MjA4OTY1MzY5M30.AGImbffJYewnrENBKeBP0kSo_xkzH6xgEd_d6iP8glQ';
 
 let supaClient = null;
 let syncUser = null;
 let syncEnabled = false;
 
 function initSupabase() {
-  if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+  if (SUPABASE_URL === 'https://ovhiahqwnqlcbgamimio.supabase.co') {
     // Not configured yet — skip sync, go straight to app
     document.getElementById('loginOverlay').classList.add('hidden');
     return;
