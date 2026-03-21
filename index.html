@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<!--
+   ______                            __
+  / ____/___  ____ ___  ____  __  __/ /____  _____
+ / /   / __ \/ __ `__ \/ __ \/ / / / __/ _ \/ ___/
+/ /___/ /_/ / / / / / / /_/ / /_/ / /_/  __/ /
+\____/\____/_/ /_/ /_/ .___/\__,_/\__/\___/_/
+                    /_/
+        Created with Perplexity Computer
+        https://www.perplexity.ai/computer
+-->
+
+<meta name="generator" content="Perplexity Computer">
+<meta name="author" content="Perplexity Computer">
+<meta property="og:see_also" content="https://www.perplexity.ai/computer">
+<link rel="author" href="https://www.perplexity.ai/computer">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Trade-the-News &mdash; Live Trading Dashboard</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2"></script>
+<style>
+
+:root {
+  --font-body: 'Satoshi', 'Inter', sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+  --text-xs: clamp(0.6875rem, 0.65rem + 0.2vw, 0.75rem);
+  --text-sm: clamp(0.75rem, 0.72rem + 0.15vw, 0.8125rem);
+  --text-base: clamp(0.8125rem, 0.78rem + 0.15vw, 0.875rem);
+  --text-lg: clamp(0.9375rem, 0.9rem + 0.2vw, 1.0625rem);
+  --text-xl: clamp(1.125rem, 1rem + 0.5vw, 1.375rem);
+  --space-1: 0.25rem; --space-2: 0.5rem; --space-3: 0.75rem;
+  --space-4: 1rem; --space-5: 1.25rem; --space-6: 1.5rem;
+  --space-8: 2rem; --space-10: 2.5rem; --space-12: 3rem;
+  --radius-sm: 0.375rem; --radius-md: 0.5rem; --radius-lg: 0.75rem; --radius-xl: 1rem;
+  --transition-fast: 150ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-theme="dark"] {
+  --bg-start: #0a0e1a; --bg-end: #0f1628; --bg: #0b1020;
+  --surface: rgba(17, 24, 46, 0.7); --surface-solid: #111830;
+  --surface-2: rgba(22, 31, 56, 0.6); --surface-3: #1a2545;
+  --border: rgba(55, 75, 120, 0.3); --border-hover: rgba(80, 105, 160, 0.4);
+  --text: #e4e8f1; --text-muted: #7b89a8; --text-faint: #475575;
+  --accent: #4d8df7; --accent-dim: rgba(77, 141, 247, 0.12);
+  --accent-hover: #3a7ae8; --accent-glow: rgba(77, 141, 247, 0.15);
+  --green: #34d399; --green-dim: rgba(52, 211, 153, 0.12); --green-bar: #22c55e;
+  --red: #f87171; --red-dim: rgba(248, 113, 113, 0.12);
+  --orange: #fb923c; --orange-dim: rgba(251, 146, 60, 0.12);
+  --blue: #60a5fa; --blue-dim: rgba(96, 165, 250, 0.12);
+  --purple: #a78bfa; --purple-dim: rgba(167, 139, 250, 0.12);
+  --yellow: #fbbf24; --yellow-dim: rgba(251, 191, 36, 0.12);
+  --teal: #2dd4bf; --teal-dim: rgba(45, 212, 191, 0.12);
+  --coral: #fb7185; --coral-dim: rgba(251, 113, 133, 0.12);
+}
+
+[data-theme="light"] {
+  --bg-start: #eef1f7; --bg-end: #f5f7fb; --bg: #f0f3f9;
+  --surface: rgba(255, 255, 255, 0.85); --surface-solid: #ffffff;
+  --surface-2: rgba(240, 243, 250, 0.7); --surface-3: #e8ecf4;
+  --border: rgba(180, 195, 220, 0.4); --border-hover: rgba(150, 170, 200, 0.5);
+  --text: #1a2038; --text-muted: #5c6a82; --text-faint: #99a5b8;
+  --accent: #2563eb; --accent-dim: rgba(37, 99, 235, 0.08);
+  --accent-hover: #1d4ed8; --accent-glow: rgba(37, 99, 235, 0.08);
+  --green: #16a34a; --green-dim: rgba(22, 163, 74, 0.08); --green-bar: #16a34a;
+  --red: #dc2626; --red-dim: rgba(220, 38, 38, 0.08);
+  --orange: #d97706; --orange-dim: rgba(217, 119, 6, 0.08);
+  --blue: #2563eb; --blue-dim: rgba(37, 99, 235, 0.08);
+  --purple: #7c3aed; --purple-dim: rgba(124, 58, 237, 0.08);
+  --yellow: #ca8a04; --yellow-dim: rgba(202, 138, 4, 0.08);
+  --teal: #0d9488; --teal-dim: rgba(13, 148, 136, 0.08);
+  --coral: #e11d48; --coral-dim: rgba(225, 29, 72, 0.08);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { height: 100%; overflow-x: hidden; scroll-behavior: smooth; }
+body { min-height: 100%; overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+body {
+  font-family: var(--font-body); font-size: var(--text-base); color: var(--text);
+  background: linear-gradient(160deg, var(--bg-start), var(--bg-end));
+  -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+}
+
+.dashboard { display: flex; flex-direction: column; min-height: 100dvh; overflow-x: hidden; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-2) var(--space-5); background: var(--surface);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border); z-index: 20; gap: var(--space-3);
+  flex-wrap: wrap; position: sticky; top: 0;
+}
+.topbar-left { display: flex; align-items: center; gap: var(--space-4); }
+.logo { display: flex; align-items: center; gap: var(--space-2); font-weight: 700; font-size: var(--text-lg); color: var(--accent); flex-shrink: 0; }
+.logo svg { flex-shrink: 0; }
+
+.macro-strip { display: flex; gap: var(--space-4); flex-wrap: wrap; align-items: center; }
+.macro-item { display: flex; align-items: center; gap: var(--space-1); font-family: var(--font-mono); font-size: var(--text-xs); font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; }
+.macro-item .label { color: var(--text-muted); font-family: var(--font-body); font-weight: 500; }
+.macro-item .value { color: var(--text); font-weight: 500; }
+
+.topbar-right { display: flex; align-items: center; gap: var(--space-3); flex-shrink: 0; }
+.regime-badge { display: inline-flex; align-items: center; gap: var(--space-1); padding: 3px var(--space-3); border-radius: 9999px; font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+.regime-badge.mixed { background: var(--orange-dim); color: var(--orange); }
+.regime-badge.risk-on { background: var(--green-dim); color: var(--green); }
+.regime-badge.risk-off { background: var(--red-dim); color: var(--red); }
+
+.theme-toggle {
+  width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-md); color: var(--text-muted); cursor: pointer; border: none; background: none;
+  transition: color var(--transition-fast), background var(--transition-fast);
+}
+.theme-toggle:hover { color: var(--text); background: var(--surface-2); }
+.last-updated { font-size: var(--text-xs); color: var(--text-faint); font-family: var(--font-mono); }
+
+.main { flex: 1; padding: var(--space-4) var(--space-5); display: flex; flex-direction: column; gap: var(--space-4); overflow-x: hidden; -webkit-overflow-scrolling: touch; }
+
+.watchlist-bar {
+  display: flex; align-items: center; gap: var(--space-2);
+  padding-bottom: var(--space-1); border-bottom: 1px solid var(--border);
+  overflow-x: auto; flex-shrink: 0;
+}
+.wl-tab {
+  padding: var(--space-2) var(--space-4); border-radius: var(--radius-lg);
+  font-size: var(--text-sm); font-weight: 500; color: var(--text-muted);
+  cursor: pointer; border: none; background: none; white-space: nowrap;
+  transition: all var(--transition-fast); position: relative;
+}
+.wl-tab:hover { color: var(--text); background: var(--surface-2); }
+.wl-tab.active { color: var(--accent); background: var(--accent-dim); font-weight: 600; }
+.wl-tab .count { font-family: var(--font-mono); font-size: var(--text-xs); margin-left: var(--space-1); opacity: 0.6; }
+.wl-tab-add {
+  padding: var(--space-1) var(--space-3); border-radius: var(--radius-lg);
+  font-size: var(--text-sm); color: var(--text-faint); cursor: pointer;
+  border: 1px dashed var(--border); background: none; transition: all var(--transition-fast);
+}
+.wl-tab-add:hover { color: var(--accent); border-color: var(--accent); }
+
+.wl-rename-input {
+  background: var(--surface-2); border: 1px solid var(--accent); border-radius: var(--radius-sm);
+  color: var(--text); font-family: var(--font-body); font-size: var(--text-sm); font-weight: 600;
+  padding: 2px var(--space-2); outline: none; width: 100px;
+}
+
+.content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); }
+
+.panel {
+  background: var(--surface); backdrop-filter: blur(12px);
+  border: 1px solid var(--border); border-radius: var(--radius-lg);
+  overflow: hidden; display: flex; flex-direction: column;
+  transition: border-color var(--transition-fast); min-height: 0; flex-shrink: 0;
+}
+.panel:hover { border-color: var(--border-hover); }
+.panel-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: var(--space-3) var(--space-4); border-bottom: 1px solid var(--border);
+}
+.panel-title { font-size: var(--text-sm); font-weight: 600; color: var(--text); text-transform: uppercase; letter-spacing: 0.05em; }
+.panel-body { padding: var(--space-4); flex: 1; }
+.panel.full-width { grid-column: 1 / -1; }
+
+.metric-tabs { display: flex; gap: var(--space-1); flex-wrap: wrap; }
+.metric-tab {
+  padding: 2px var(--space-2); border-radius: var(--radius-sm);
+  font-size: var(--text-xs); font-weight: 500; color: var(--text-muted);
+  cursor: pointer; border: none; background: none; transition: all var(--transition-fast);
+}
+.metric-tab:hover { color: var(--text); }
+.metric-tab.active { color: var(--accent); background: var(--accent-dim); }
+
+.ticker-search-wrap { position: relative; display: inline-block; }
+.ticker-search {
+  background: var(--surface-2); color: var(--text); border: 1px solid var(--border);
+  border-radius: 6px; padding: 5px 10px; font-family: var(--font-mono);
+  font-size: var(--text-sm); font-weight: 600; outline: none; width: 120px;
+  text-transform: uppercase; transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ticker-search:hover { border-color: var(--accent); }
+.ticker-search:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.ticker-autocomplete {
+  position: absolute; top: 100%; left: 0; right: 0; z-index: 30;
+  background: var(--surface-solid); border: 1px solid var(--border);
+  border-radius: var(--radius-md); max-height: 200px; overflow-y: auto;
+  display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.ticker-autocomplete.open { display: block; }
+.ticker-autocomplete-item {
+  padding: var(--space-2) var(--space-3); cursor: pointer;
+  font-family: var(--font-mono); font-size: var(--text-sm);
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ticker-autocomplete-item:hover { background: var(--accent-dim); }
+.ticker-autocomplete-item .ticker-sym { font-weight: 600; color: var(--accent); }
+.ticker-autocomplete-item .ticker-name { font-family: var(--font-body); font-size: var(--text-xs); color: var(--text-muted); max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.sa-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: var(--space-3); }
+.sa-card {
+  background: var(--surface-2); border-radius: var(--radius-md);
+  padding: var(--space-3); border: 1px solid transparent; transition: border-color var(--transition-fast);
+}
+.sa-card:hover { border-color: var(--border-hover); }
+.sa-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-2); }
+.sa-card-label { font-size: var(--text-xs); color: var(--text-muted); font-weight: 500; }
+.sa-card-value { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; }
+.sa-chart-wrap { height: 80px; position: relative; }
+.sa-chart-wrap canvas { width: 100% !important; height: 100% !important; }
+
+.km-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: var(--space-2); margin-top: var(--space-4); padding-top: var(--space-3); border-top: 1px solid var(--border); }
+.km-item { text-align: center; padding: var(--space-2); }
+.km-label { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 2px; }
+.km-value { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; }
+
+.brief-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.brief-item { display: flex; gap: var(--space-3); align-items: flex-start; font-size: var(--text-sm); line-height: 1.55; }
+.brief-dot { width: 6px; height: 6px; border-radius: 9999px; flex-shrink: 0; margin-top: 7px; }
+.brief-dot.macro { background: var(--blue); }
+.brief-dot.sector { background: var(--teal); }
+.brief-dot.risk { background: var(--red); }
+.brief-dot.action { background: var(--green); }
+.brief-date { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); white-space: nowrap; flex-shrink: 0; min-width: 42px; margin-top: 1px; }
+
+.sector-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: var(--space-2); }
+.sector-cell { background: var(--surface-2); border-radius: var(--radius-md); padding: var(--space-2) var(--space-3); text-align: center; border: 1px solid transparent; transition: border-color var(--transition-fast); }
+.sector-cell:hover { border-color: var(--border-hover); }
+.sector-name { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: 2px; font-weight: 500; }
+.sector-change { font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.sector-weight { font-size: var(--text-xs); color: var(--text-faint); margin-top: 2px; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+.ma-indicator {
+  display: inline-flex; align-items: center; gap: 3px; font-size: var(--text-xs);
+  font-family: var(--font-mono); padding: 1px 6px; border-radius: 9999px; font-weight: 600;
+}
+.ma-indicator.above { background: var(--green-dim); color: var(--green); }
+.ma-indicator.below { background: var(--red-dim); color: var(--red); }
+.ma-indicator.near { background: var(--yellow-dim); color: var(--yellow); }
+
+.theme-exposure { margin-top: var(--space-4); display: flex; flex-direction: column; gap: var(--space-2); }
+.exposure-row { display: flex; align-items: center; gap: var(--space-3); }
+.exposure-label { font-size: var(--text-xs); color: var(--text-muted); width: 85px; flex-shrink: 0; font-weight: 500; }
+.exposure-bar-wrap { flex: 1; height: 6px; background: var(--surface-3); border-radius: 9999px; overflow: hidden; }
+.exposure-bar { height: 100%; border-radius: 9999px; transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+.exposure-pct { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); width: 36px; text-align: right; font-variant-numeric: tabular-nums; }
+
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+thead th {
+  padding: var(--space-2) var(--space-3); text-align: left;
+  font-size: var(--text-xs); font-weight: 600; color: var(--text-muted);
+  text-transform: uppercase; letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border); white-space: nowrap;
+  position: sticky; top: 0; background: var(--surface-solid); z-index: 1;
+  cursor: pointer; user-select: none; transition: color var(--transition-fast);
+}
+thead th:hover { color: var(--text); }
+thead th .sort-arrow { font-size: 0.65em; margin-left: 3px; opacity: 0.5; }
+thead th.sorted .sort-arrow { opacity: 1; color: var(--accent); }
+tbody td {
+  padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border);
+  font-variant-numeric: tabular-nums lining-nums; white-space: nowrap; vertical-align: middle;
+}
+tbody tr { transition: background var(--transition-fast); }
+tbody tr:hover { background: var(--accent-dim); }
+tbody tr:last-child td { border-bottom: none; }
+td.ticker { font-weight: 600; color: var(--accent); font-family: var(--font-mono); }
+td.price { font-family: var(--font-mono); font-weight: 500; }
+td.mono { font-family: var(--font-mono); }
+td.rationale { white-space: normal; min-width: 250px; max-width: none; color: var(--text-muted); font-size: var(--text-xs); line-height: 1.5; }
+.priority-num { font-family: var(--font-mono); font-weight: 600; color: var(--text-faint); }
+
+.action-badge { display: inline-flex; align-items: center; padding: 2px var(--space-2); border-radius: 9999px; font-size: var(--text-xs); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; }
+.action-badge.bullish, .action-badge.buy, .action-badge.accumulate { background: var(--green-dim); color: var(--green); }
+.action-badge.bearish, .action-badge.trim { background: var(--red-dim); color: var(--red); }
+.action-badge.neutral, .action-badge.caution, .action-badge.watch { background: var(--yellow-dim); color: var(--yellow); }
+.action-badge.hold { background: var(--blue-dim); color: var(--blue); }
+
+.wl-ticker-input-bar {
+  display: flex; align-items: center; gap: var(--space-2); padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border); background: var(--surface-2);
+}
+.wl-ticker-input-bar input {
+  flex: 1; background: var(--surface); color: var(--text); border: 1px solid var(--border);
+  border-radius: var(--radius-sm); padding: var(--space-1) var(--space-2);
+  font-family: var(--font-mono); font-size: var(--text-sm); font-weight: 500;
+  text-transform: uppercase; outline: none; transition: border-color 0.15s;
+}
+.wl-ticker-input-bar input:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-dim); }
+.wl-ticker-input-bar .hint { font-size: var(--text-xs); color: var(--text-faint); white-space: nowrap; }
+.wl-row-delete {
+  background: none; border: none; color: var(--text-faint); cursor: pointer; font-size: var(--text-xs);
+  padding: 2px 4px; border-radius: var(--radius-sm); transition: all var(--transition-fast); line-height: 1;
+}
+.wl-row-delete:hover { color: var(--red); background: var(--red-dim); }
+
+.wl-tab-close {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px; border-radius: 50%; font-size: 9px; line-height: 1;
+  color: var(--text-faint); background: none; border: none; cursor: pointer;
+  margin-left: 4px; transition: all var(--transition-fast); padding: 0;
+}
+.wl-tab-close:hover { color: var(--red); background: var(--red-dim); }
+
+.chart-container { position: relative; width: 100%; min-height: 260px; }
+@media (max-width: 1024px) {
+  .content-grid[style*="display:flex"] { flex-direction: column !important; }
+}
+
+.events-list { display: flex; flex-direction: column; gap: var(--space-2); }
+.event-row { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-sm); }
+.event-date { font-family: var(--font-mono); font-size: var(--text-xs); color: var(--text-muted); width: 55px; flex-shrink: 0; font-variant-numeric: tabular-nums; }
+.event-name { flex: 1; color: var(--text); }
+.impact-badge { font-size: var(--text-xs); font-weight: 600; padding: 1px var(--space-2); border-radius: 9999px; text-transform: uppercase; letter-spacing: 0.03em; }
+.impact-badge.high { background: var(--red-dim); color: var(--red); }
+.impact-badge.med { background: var(--orange-dim); color: var(--orange); }
+.impact-badge.low { background: var(--blue-dim); color: var(--blue); }
+
+.fedwatch-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(115px, 1fr)); gap: var(--space-2); }
+.fedwatch-card { text-align: center; padding: var(--space-3); background: var(--surface-2); border-radius: var(--radius-md); }
+.fedwatch-date { font-size: var(--text-xs); color: var(--text-muted); margin-bottom: var(--space-1); font-weight: 500; }
+.fedwatch-prob { font-family: var(--font-mono); font-size: var(--text-lg); font-weight: 600; font-variant-numeric: tabular-nums lining-nums; }
+.fedwatch-label { font-size: var(--text-xs); color: var(--text-faint); margin-top: 2px; }
+
+.div-calendar-row { display: flex; align-items: center; gap: var(--space-3); font-size: var(--text-sm); padding: var(--space-2) 0; border-bottom: 1px solid var(--border); }
+.div-calendar-row:last-child { border-bottom: none; }
+.div-ticker { font-family: var(--font-mono); font-weight: 600; color: var(--accent); width: 50px; flex-shrink: 0; }
+.div-amount { font-family: var(--font-mono); font-weight: 500; color: var(--green); }
+.div-date { font-size: var(--text-xs); color: var(--text-muted); font-family: var(--font-mono); margin-left: auto; }
+
+.insider-table { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+.insider-table thead th { padding: var(--space-2) var(--space-3); text-align: left; font-size: var(--text-xs); font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.insider-table tbody td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--border); font-variant-numeric: tabular-nums; }
+.insider-table tbody tr:last-child td { border-bottom: none; }
+.insider-table tbody tr:hover { background: var(--accent-dim); }
+
+.footer { text-align: center; padding: var(--space-4); font-size: var(--text-xs); color: var(--text-faint); }
+.footer a { color: var(--text-faint); text-decoration: none; transition: color var(--transition-fast); }
+.footer a:hover { color: var(--text-muted); }
+
+.color-green { color: var(--green); } .color-red { color: var(--red); } .color-yellow { color: var(--yellow); }
+.color-orange { color: var(--orange); } .color-blue { color: var(--blue); }
+.color-accent { color: var(--accent); } .color-muted { color: var(--text-muted); }
+.color-teal { color: var(--teal); } .color-purple { color: var(--purple); }
+.up::before { content: "\25B2 "; font-size: 0.6em; } .down::before { content: "\25BC "; font-size: 0.6em; }
+
+.ws-dot { width: 6px; height: 6px; border-radius: 50%; display: inline-block; margin-right: 4px; }
+.ws-dot.connected { background: var(--green); box-shadow: 0 0 4px var(--green); }
+.ws-dot.disconnected { background: var(--red); }
+.ws-dot.connecting { background: var(--yellow); animation: wsPulse 1s infinite; }
+@keyframes wsPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+@media (max-width: 1024px) {
+  .content-grid { grid-template-columns: 1fr; }
+  .panel.full-width { grid-column: 1; }
+  .sa-grid { grid-template-columns: repeat(2, 1fr); }
+
+}
+@media (max-width: 768px) {
+  .topbar { padding: var(--space-2) var(--space-3); }
+  .macro-strip { display: none; }
+  .main { padding: var(--space-2) var(--space-3); gap: var(--space-3); }
+  .sa-grid { grid-template-columns: 1fr 1fr; }
+
+  .panel-header { padding: var(--space-2) var(--space-3); flex-wrap: wrap; gap: var(--space-2); }
+  .panel-body { padding: var(--space-3); }
+  .brief-item { font-size: var(--text-xs); }
+  .sector-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+}
+@media (max-width: 480px) {
+  .sa-grid { grid-template-columns: 1fr; }
+  .main { padding: var(--space-1) var(--space-2); gap: var(--space-2); }
+  .fedwatch-grid { grid-template-columns: repeat(3, 1fr); }
+  .km-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.skeleton-pulse {
+  background: linear-gradient(90deg, var(--surface-2) 25%, var(--surface-3) 50%, var(--surface-2) 75%) !important;
+  background-size: 200% 100% !important; animation: skeletonPulse 1.5s ease-in-out infinite;
+  color: transparent !important; border-radius: var(--radius-sm); min-width: 48px; display: inline-block;
+}
+@keyframes skeletonPulse { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+[data-theme="dark"] ::-webkit-scrollbar { width: 5px; }
+[data-theme="dark"] ::-webkit-scrollbar-track { background: transparent; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 9999px; }
+[data-theme="dark"] ::-webkit-scrollbar-thumb:hover { background: var(--border-hover); }
+
+.login-overlay{position:fixed;inset:0;z-index:9999;background:var(--bg);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:var(--space-4)}
+.login-overlay.hidden{display:none}
+.login-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:var(--space-8);max-width:360px;width:90%;text-align:center}
+.login-box h2{font-size:var(--text-xl);margin-bottom:var(--space-2);color:var(--accent)}
+.login-box p{font-size:var(--text-sm);color:var(--text-muted);margin-bottom:var(--space-4)}
+.login-box input{width:100%;padding:var(--space-2) var(--space-3);background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);color:var(--text);font-size:var(--text-sm);outline:none;margin-bottom:var(--space-3)}
+.login-box input:focus{border-color:var(--accent);box-shadow:0 0 0 2px var(--accent-dim)}
+.login-btn{width:100%;padding:var(--space-2) var(--space-4);background:var(--accent);color:#fff;border:none;border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:600;cursor:pointer;transition:background 0.15s}
+.login-btn:hover{background:var(--accent-hover)}
+.login-btn:disabled{opacity:0.5;cursor:not-allowed}
+.login-msg{font-size:var(--text-xs);color:var(--green);margin-top:var(--space-2);min-height:1.2em}
+.login-skip{font-size:var(--text-xs);color:var(--text-faint);cursor:pointer;margin-top:var(--space-2);text-decoration:underline}
+.login-skip:hover{color:var(--text-muted)}
+.sync-badge{font-size:var(--text-xs);color:var(--green);margin-left:var(--space-2)}
+.user-menu{display:flex;align-items:center;gap:var(--space-2);font-size:var(--text-xs);color:var(--text-muted)}
+.user-menu .logout-btn{background:none;border:none;color:var(--text-faint);cursor:pointer;font-size:var(--text-xs);text-decoration:underline}
+.user-menu .logout-btn:hover{color:var(--red)}
+</style>
+</head>
+<body>
+
+<div class="login-overlay" id="loginOverlay">
+  <div class="login-box">
+    <h2>🔄 Sync Your Watchlists</h2>
+    <p>Sign in with your email to sync watchlists across all your devices. We'll send a magic link — no password needed.</p>
+    <input type="email" id="loginEmail" placeholder="you@example.com" autocomplete="email">
+    <button class="login-btn" id="loginBtn" onclick="handleLogin()">Send Magic Link</button>
+    <div class="login-msg" id="loginMsg"></div>
+    <div class="login-skip" onclick="skipLogin()">Skip — use this device only</div>
+  </div>
+</div>
+<div class="dashboard">
+  <header class="topbar">
+    <div class="topbar-left">
+      <div class="logo">
+        <svg width="26" height="26" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Trade-the-News logo">
+          <rect x="2" y="2" width="28" height="28" rx="6" stroke="currentColor" stroke-width="2"/>
+          <polyline points="7,22 12,14 17,18 22,8 27,12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+          <circle cx="22" cy="8" r="2.5" fill="currentColor"/>
+        </svg>
+        Trade-the-News
+      </div>
+      <div class="macro-strip" id="macroStrip">
+        <div class="macro-item" id="macroSPY"><span class="label">SPY</span> <span class="value skeleton-pulse">&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="chg" style="font-size:var(--text-xs)"></span></div>
+        <div class="macro-item" id="macroQQQ"><span class="label">QQQ</span> <span class="value skeleton-pulse">&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="chg" style="font-size:var(--text-xs)"></span></div>
+        <div class="macro-item" id="macroBTC"><span class="label">BTC</span> <span class="value skeleton-pulse">&nbsp;&nbsp;&nbsp;&nbsp;</span> <span class="chg" style="font-size:var(--text-xs)"></span></div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <span class="regime-badge mixed"><svg width="7" height="7" viewBox="0 0 8 8"><circle cx="4" cy="4" r="4" fill="currentColor"/></svg> Mixed</span>
+      <span class="last-updated" id="wsStatus"><span class="ws-dot connecting"></span>Connecting...</span>
+      <button class="theme-toggle" data-theme-toggle aria-label="Switch to light mode">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+    <nav class="watchlist-bar" id="watchlistBar">
+      <button class="wl-tab active" data-wl="watchlist"><span class="wl-tab-name">Watchlist</span> <span class="count">40</span></button>
+      <button class="wl-tab" data-wl="portfolio"><span class="wl-tab-name">Portfolio P</span> <span class="count">12</span></button>
+      <button class="wl-tab" data-wl="asetups"><span class="wl-tab-name">A-Setups</span> <span class="count">6</span></button>
+      <button class="wl-tab" data-wl="earnings"><span class="wl-tab-name">Earnings Watch</span> <span class="count">8</span></button>
+      <button class="wl-tab-add" title="Create new watchlist">+ New List</button>
+    </nav>
+
+    <div class="panel full-width" id="watchlistPanel">
+      <div class="panel-header">
+        <span class="panel-title" id="wlPanelTitle">Watchlist</span>
+        <span class="last-updated"><span id="wlCount">40</span> tickers &middot; <span class="ws-dot connecting"></span> Live</span>
+      </div>
+      <div class="wl-ticker-input-bar" id="wlTickerInputBar" style="display:none">
+        <input type="text" id="wlTickerAddInput" placeholder="AAPL, GOOG, AMZN" autocomplete="off">
+        <span class="hint">Enter tickers, comma-separated</span>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        <div class="table-wrap" style="max-height:520px;overflow-y:auto;">
+          <table id="watchlistTable">
+            <thead><tr id="wlHead"></tr></thead>
+            <tbody id="wlBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Signals removed -->
+    
+
+    <div class="content-grid" style="display:flex;gap:var(--space-4)">
+      <div class="panel" style="flex:2">
+        <div class="panel-header">
+          <span class="panel-title">Chart Builder</span>
+          <div style="display:flex;align-items:center;gap:var(--space-2);flex-wrap:wrap">
+            <div class="ticker-search-wrap">
+              <input type="text" class="ticker-search" id="saTickerInput" placeholder="NVDA" value="NVDA" autocomplete="off">
+              <div class="ticker-autocomplete" id="saAutocomplete"></div>
+            </div>
+            <div class="metric-tabs" id="saPeriodTabs">
+              <button class="metric-tab active" data-period="quarterly">Quarterly</button>
+              <button class="metric-tab" data-period="annual">Annual</button>
+            </div>
+          </div>
+          <div class="metric-tabs" id="chartMetricTabs">
+            <button class="metric-tab active" data-chart="revenue">Revenue</button>
+            <button class="metric-tab" data-chart="eps">EPS</button>
+            <button class="metric-tab" data-chart="fcf">FCF</button>
+            <button class="metric-tab" data-chart="margins">Margins</button>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div id="chartBuilderSubtitle" style="font-size:var(--text-xs);color:var(--text-muted);margin-bottom:var(--space-2)">Revenue by Segment &middot; Annual</div>
+          <div class="chart-container"><canvas id="chartBuilder"></canvas></div>
+        </div>
+      </div>
+      <div class="panel" style="flex:1">
+        <div class="panel-header">
+          <span class="panel-title">Daily Brief</span>
+          <span class="last-updated" id="briefDate"></span>
+        </div>
+        <div class="panel-body">
+          <div class="brief-list" id="briefList">
+            <div class="brief-item"><span class="brief-dot macro"></span><span class="brief-date skeleton-pulse">&nbsp;&nbsp;&nbsp;</span><span class="skeleton-pulse" style="width:100%;height:16px">&nbsp;</span></div>
+            <div class="brief-item"><span class="brief-dot sector"></span><span class="brief-date skeleton-pulse">&nbsp;&nbsp;&nbsp;</span><span class="skeleton-pulse" style="width:100%;height:16px">&nbsp;</span></div>
+            <div class="brief-item"><span class="brief-dot action"></span><span class="brief-date skeleton-pulse">&nbsp;&nbsp;&nbsp;</span><span class="skeleton-pulse" style="width:100%;height:16px">&nbsp;</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel full-width">
+      <div class="panel-header">
+        <span class="panel-title">Stock Analysis</span>
+      </div>
+      <div class="panel-body">
+        <div class="sa-grid" id="saGrid"></div>
+        <div class="km-grid" id="kmGrid"></div>
+      </div>
+    </div>
+
+    <div class="panel full-width">
+      <div class="panel-header">
+        <span class="panel-title">S&amp;P 500 Insider Buys</span>
+        <span class="last-updated">Purchases only &middot; live from Finnhub</span>
+      </div>
+      <div class="panel-body" style="padding:0;">
+        <div class="table-wrap">
+          <table class="insider-table">
+            <thead><tr><th>Ticker</th><th>Insider Name</th><th>Date</th><th>Shares</th><th>Shares / Total</th><th>Price</th><th>Value</th></tr></thead>
+            <tbody id="insiderBody">
+              <tr><td colspan="7" style="color:var(--text-muted);padding:var(--space-4);text-align:center">Scanning S&P 500 for recent insider purchases...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Macro Events</span><span class="last-updated">Finnhub Economic Calendar</span></div>
+        <div class="panel-body">
+          <div class="events-list" id="macroEventsList">
+            <div style="color:var(--text-muted);font-size:var(--text-sm)">Loading economic events...</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">CME FedWatch</span>
+          <span class="last-updated">Current: 4.25-4.50%</span>
+        </div>
+        <div class="panel-body">
+          <div class="fedwatch-grid">
+            <div class="fedwatch-card"><div class="fedwatch-date">Mar 19</div><div class="fedwatch-prob">97%</div><div class="fedwatch-label">Hold</div></div>
+            <div class="fedwatch-card"><div class="fedwatch-date">May 7</div><div class="fedwatch-prob">82%</div><div class="fedwatch-label">Hold</div></div>
+            <div class="fedwatch-card"><div class="fedwatch-date">Jun 18</div><div class="fedwatch-prob color-green">58%</div><div class="fedwatch-label">-25bp</div></div>
+            <div class="fedwatch-card"><div class="fedwatch-date">Jul 30</div><div class="fedwatch-prob color-green">44%</div><div class="fedwatch-label">-50bp</div></div>
+            <div class="fedwatch-card"><div class="fedwatch-date">Sep 17</div><div class="fedwatch-prob color-green">61%</div><div class="fedwatch-label">-50bp</div></div>
+            <div class="fedwatch-card"><div class="fedwatch-date">Dec 17</div><div class="fedwatch-prob color-green">52%</div><div class="fedwatch-label">-75bp</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Dividend Calendar</span>
+          <span class="last-updated" id="divCalLabel">Active watchlist</span>
+        </div>
+        <div class="panel-body">
+          <div id="divCalRows">
+            <div class="div-calendar-row"><span class="div-ticker">MSFT</span><span>Quarterly</span><span class="div-amount">$0.83</span><span class="div-date">Mar 20</span></div>
+            <div class="div-calendar-row"><span class="div-ticker">AVGO</span><span>Quarterly</span><span class="div-amount">$0.59</span><span class="div-date">Mar 28</span></div>
+            <div class="div-calendar-row"><span class="div-ticker">META</span><span>Quarterly</span><span class="div-amount">$0.50</span><span class="div-date">Mar 26</span></div>
+            <div class="div-calendar-row"><span class="div-ticker">SPGI</span><span>Quarterly</span><span class="div-amount">$0.96</span><span class="div-date">Mar 28</span></div>
+            <div class="div-calendar-row"><span class="div-ticker">GS</span><span>Quarterly</span><span class="div-amount">$3.00</span><span class="div-date">Mar 25</span></div>
+            <div class="div-calendar-row"><span class="div-ticker">LMT</span><span>Quarterly</span><span class="div-amount">$3.30</span><span class="div-date">Mar 28</span></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    
+  </main>
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'Satoshi', 'Inter', sans-serif";
+Chart.defaults.font.size = 11;
+Chart.defaults.animation.duration = 700;
+Chart.defaults.animation.easing = 'easeOutQuart';
+const FINNHUB_KEY = 'd6sunhhr01qoqoirjd1gd6sunhhr01qoqoirjd20';
+const FH = (path) => `https://finnhub.io/api/v1/${path}&token=${FINNHUB_KEY}`;
+function fmtDate(d) { const m = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; const dt = new Date(d); return m[dt.getMonth()] + ' ' + dt.getDate(); }
+function fmtMoney(n) { if (Math.abs(n) >= 1e9) return '$' + (n/1e9).toFixed(1) + 'B'; if (Math.abs(n) >= 1e6) return '$' + (n/1e6).toFixed(1) + 'M'; if (Math.abs(n) >= 1e3) return '$' + (n/1e3).toFixed(1) + 'K'; return '$' + n.toFixed(2); }
+function fmtB(n) { if (n == null || n === 0) return '$0'; if (Math.abs(n) >= 1) return '$' + n.toFixed(1) + 'B'; return '$' + (n * 1000).toFixed(0) + 'M'; }
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+</script>
+<script>
+const QUOTES_DATA = {
+  "NVDA": {name:"NVIDIA Corporation",price:180.4,pe:36.89,eps:4.89,chg:-0.84,yearHigh:212.19,yearLow:86.62,prevClose:181.93},
+  "AVGO": {name:"Broadcom Inc.",price:315.93,pe:61.46,eps:5.14,chg:-1.67,yearHigh:414.61,yearLow:138.1,prevClose:321.31},
+  "AMD": {name:"Advanced Micro Devices, Inc.",price:199.46,pe:76.42,eps:2.61,chg:1.6,yearHigh:267.08,yearLow:76.48,prevClose:196.31},
+  "SMCI": {name:"Super Micro Computer, Inc.",price:30.35,pe:22.15,eps:1.37,chg:-3.68,yearHigh:62.36,yearLow:27.6,prevClose:31.51},
+  "CDNS": {name:"Cadence Design Systems, Inc.",price:289.64,pe:71.52,eps:4.05,chg:-1.4,yearHigh:376.45,yearLow:221.56,prevClose:293.75},
+  "MRVL": {name:"Marvell Technology, Inc.",price:87.62,pe:28.54,eps:3.07,chg:-3.49,yearHigh:102.77,yearLow:47.09,prevClose:90.79},
+  "TSM": {name:"Taiwan Semiconductor Manufacturing Company Limited",price:339.57,pe:32.94,eps:10.31,chg:-1.85,yearHigh:390.21,yearLow:134.25,prevClose:345.98},
+  "MSFT": {name:"Microsoft Corporation",price:391.79,pe:24.49,eps:16.0,chg:-1.91,yearHigh:555.45,yearLow:344.79,prevClose:399.41},
+  "NOW": {name:"ServiceNow, Inc.",price:113.71,pe:68.09,eps:1.67,chg:-2.58,yearHigh:211.48,yearLow:98.0,prevClose:116.72},
+  "CRM": {name:"Salesforce, Inc.",price:194.34,pe:24.95,eps:7.79,chg:-0.5,yearHigh:296.05,yearLow:174.57,prevClose:195.31},
+  "SNOW": {name:"Snowflake Inc.",price:173.25,pe:-43.86,eps:-3.95,chg:-0.77,yearHigh:280.67,yearLow:120.1,prevClose:174.6},
+  "DDOG": {name:"Datadog, Inc.",price:131.26,pe:423.42,eps:0.31,chg:1.85,yearHigh:201.69,yearLow:81.63,prevClose:128.87},
+  "HUBS": {name:"HubSpot, Inc.",price:262.11,pe:308.36,eps:0.85,chg:-1.3,yearHigh:682.57,yearLow:207.2,prevClose:265.55},
+  "PLTR": {name:"Palantir Technologies Inc.",price:152.77,pe:242.49,eps:0.63,chg:-1.49,yearHigh:207.52,yearLow:66.12,prevClose:155.08},
+  "NET": {name:"Cloudflare, Inc.",price:225.59,pe:-777.9,eps:-0.29,chg:6.65,yearHigh:260.0,yearLow:89.42,prevClose:211.52},
+  "ORCL": {name:"Oracle Corporation",price:152.88,pe:27.45,eps:5.57,chg:-1.17,yearHigh:345.72,yearLow:118.86,prevClose:154.69},
+  "CRWD": {name:"CrowdStrike Holdings, Inc.",price:435.81,pe:-680.95,eps:-0.64,chg:0.6,yearHigh:566.9,yearLow:298.0,prevClose:433.2},
+  "PANW": {name:"Palo Alto Networks, Inc.",price:168.91,pe:94.36,eps:1.79,chg:-0.17,yearHigh:223.61,yearLow:139.57,prevClose:169.19},
+  "FTNT": {name:"Fortinet, Inc.",price:83.39,pe:34.46,eps:2.42,chg:0.28,yearHigh:109.33,yearLow:70.12,prevClose:83.16},
+  "ZS": {name:"Zscaler, Inc.",price:155.99,pe:-362.77,eps:-0.43,chg:-0.01,yearHigh:336.99,yearLow:140.56,prevClose:156.0},
+  "APP": {name:"AppLovin Corporation",price:442.57,pe:44.04,eps:10.05,chg:-3.6,yearHigh:745.61,yearLow:200.5,prevClose:459.09},
+  "META": {name:"Meta Platforms, Inc.",price:615.68,pe:26.23,eps:23.47,chg:-1.12,yearHigh:796.25,yearLow:479.8,prevClose:622.66},
+  "SHOP": {name:"Shopify Inc.",price:123.75,pe:130.26,eps:0.95,chg:-3.17,yearHigh:182.19,yearLow:69.84,prevClose:127.8},
+  "TOST": {name:"Toast, Inc.",price:27.85,pe:49.73,eps:0.56,chg:-1.9,yearHigh:49.66,yearLow:24.35,prevClose:28.39},
+  "COIN": {name:"Coinbase Global, Inc.",price:202.29,pe:45.46,eps:4.45,chg:-3.78,yearHigh:444.65,yearLow:139.36,prevClose:210.23},
+  "EETH": {name:"ProShares - Ether ETF",price:27.12,pe:null,eps:null,chg:-5.77,yearHigh:84.43,yearLow:22.43,prevClose:28.78},
+  "TSLA": {name:"Tesla, Inc.",price:392.78,pe:235.2,eps:1.67,chg:-1.63,yearHigh:498.83,yearLow:214.25,prevClose:399.27},
+  "AMZN": {name:"Amazon.com, Inc.",price:209.87,pe:29.27,eps:7.17,chg:-2.48,yearHigh:258.6,yearLow:161.38,prevClose:215.2},
+  "NFLX": {name:"Netflix, Inc.",price:94.7,pe:37.73,eps:2.51,chg:0.36,yearHigh:134.12,yearLow:75.01,prevClose:94.36},
+  "ADSK": {name:"Autodesk, Inc.",price:248.48,pe:47.6,eps:5.22,chg:-1.76,yearHigh:329.09,yearLow:215.01,prevClose:252.92},
+  "INTU": {name:"Intuit Inc.",price:446.79,pe:29.05,eps:15.38,chg:-2.72,yearHigh:813.7,yearLow:349.0,prevClose:459.28},
+  "MCO": {name:"Moody's Corporation",price:438.67,pe:32.09,eps:13.67,chg:-0.54,yearHigh:546.88,yearLow:378.71,prevClose:441.03},
+  "SPGI": {name:"S&P Global Inc.",price:426.64,pe:29.08,eps:14.67,chg:-1.46,yearHigh:579.05,yearLow:381.61,prevClose:432.94},
+  "GS": {name:"The Goldman Sachs Group, Inc.",price:805.48,pe:15.45,eps:52.13,chg:-0.19,yearHigh:984.7,yearLow:439.38,prevClose:807.04},
+  "SOFI": {name:"SoFi Technologies, Inc.",price:17.18,pe:44.05,eps:0.39,chg:-1.09,yearHigh:32.73,yearLow:8.6,prevClose:17.37},
+  "LMT": {name:"Lockheed Martin Corporation",price:642.28,pe:29.86,eps:21.51,chg:0.94,yearHigh:692.0,yearLow:410.11,prevClose:636.33},
+  "NBIS": {name:"Nebius Group N.V.",price:118.56,pe:988.0,eps:0.12,chg:1.92,yearHigh:141.1,yearLow:18.31,prevClose:116.33},
+  "GRNY": {name:"Tidal Trust III - Fundstrat Granny Shots US Large Cap ETF",price:24.27,pe:26.82,eps:0.91,chg:-1.06,yearHigh:26.33,yearLow:15.0,prevClose:24.53},
+  "CRDO": {name:"Credo Technology Group Holding Ltd",price:101.72,pe:55.89,eps:1.82,chg:-2.25,yearHigh:213.8,yearLow:29.09,prevClose:104.06},
+  "IGV": {name:"iShares Expanded Tech-Software Sector ETF",price:84.34,pe:33.51,eps:2.52,chg:-1.39,yearHigh:117.99,yearLow:76.26,prevClose:85.53}
+};
+
+const ESTIMATES_DATA = {
+  "NVDA": {forwardEps:4.91442},
+  "AVGO": {forwardEps:12.90215},
+  "AMD": {forwardEps:8.52388},
+  "SMCI": {forwardEps:null},
+  "CDNS": {forwardEps:null},
+  "MRVL": {forwardEps:3.26952},
+  "MSFT": {forwardEps:22.59856},
+  "NOW": {forwardEps:5.28613},
+  "CRM": {forwardEps:15.53244},
+  "SNOW": {forwardEps:2.03082},
+  "DDOG": {forwardEps:3.40567},
+  "HUBS": {forwardEps:15.93484},
+  "PLTR": {forwardEps:1.5486},
+  "NET": {forwardEps:1.91937},
+  "ORCL": {forwardEps:10.24897},
+  "CRWD": {forwardEps:4.88462},
+  "PANW": {forwardEps:4.46958},
+  "FTNT": {forwardEps:3.16004},
+  "ZS": {forwardEps:5.1116},
+  "APP": {forwardEps:17.18456},
+  "META": {forwardEps:42.62787},
+  "TOST": {forwardEps:null},
+  "COIN": {forwardEps:null},
+  "TSLA": {forwardEps:4.68411},
+  "AMZN": {forwardEps:19.0277},
+  "NFLX": {forwardEps:3.31863},
+  "ADSK": {forwardEps:11.29512},
+  "INTU": {forwardEps:23.92633},
+  "MCO": {forwardEps:19.4786},
+  "SPGI": {forwardEps:23.53191},
+  "GS": {forwardEps:65.86361},
+  "SOFI": {forwardEps:1.31319},
+  "LMT": {forwardEps:37.97627}
+};
+
+const MA200_DATA = {
+  "NVDA": 168.31, "AVGO": 307.50, "AMD": 184.56, "SMCI": 41.22,
+  "CDNS": 307.69, "MRVL": 78.67, "TSM": 277.24, "MSFT": 460.52,
+  "NOW": 168.16, "CRM": 238.20, "SNOW": 211.53, "DDOG": 134.45,
+  "HUBS": 444.29, "PLTR": 155.15, "NET": 200.37, "ORCL": 200.38,
+  "CRWD": 474.53, "PANW": 192.91, "FTNT": 90.35, "ZS": 255.60,
+  "APP": 482.94, "META": 677.47, "SHOP": 132.82, "TOST": 36.23,
+  "COIN": 263.89, "TSLA": 392.03, "AMZN": 213.29, "NFLX": 109.38,
+  "ADSK": 286.13, "INTU": 631.82, "MCO": 466.98, "SPGI": 475.32,
+  "GS": 720.92, "SOFI": 19.69, "LMT": 536.18, "NBIS": 88.83,
+  "GRNY": 23.63, "CRDO": 108.60, "IGV": 101.43, "EETH": 45.28
+};
+
+const OHLCV_DATA = {
+  "NVDA": {yearHigh:188.88,latestClose:180.4},
+  "AVGO": {yearHigh:358.3,latestClose:315.93},
+  "AMD": {yearHigh:253.39,latestClose:199.46},
+  "SMCI": {yearHigh:54.53,latestClose:30.35},
+  "CDNS": {yearHigh:351.13,latestClose:289.64},
+  "MRVL": {yearHigh:93.44,latestClose:87.62},
+  "TSM": {yearHigh:347.95,latestClose:339.57},
+  "MSFT": {yearHigh:525.35,latestClose:391.79},
+  "NOW": {yearHigh:203.59,latestClose:113.71},
+  "CRM": {yearHigh:265.5,latestClose:194.34},
+  "SNOW": {yearHigh:259.75,latestClose:173.25},
+  "DDOG": {yearHigh:160.2,latestClose:131.26},
+  "HUBS": {yearHigh:603.71,latestClose:262.11},
+  "PLTR": {yearHigh:186.17,latestClose:152.77},
+  "NET": {yearHigh:229.15,latestClose:225.59},
+  "ORCL": {yearHigh:287.19,latestClose:152.88},
+  "CRWD": {yearHigh:535.52,latestClose:435.81},
+  "PANW": {yearHigh:218.23,latestClose:168.91},
+  "FTNT": {yearHigh:103.17,latestClose:83.39},
+  "ZS": {yearHigh:327.4,latestClose:155.99},
+  "APP": {yearHigh:627.11,latestClose:442.57},
+  "META": {yearHigh:742.41,latestClose:615.68},
+  "SHOP": {yearHigh:174.74,latestClose:123.75},
+  "TOST": {yearHigh:43.47,latestClose:27.85},
+  "COIN": {yearHigh:356.88,latestClose:202.29},
+  "TSLA": {yearHigh:451.68,latestClose:392.78},
+  "AMZN": {yearHigh:225.4,latestClose:209.87},
+  "NFLX": {yearHigh:124.26,latestClose:94.7},
+  "ADSK": {yearHigh:314.51,latestClose:248.48},
+  "INTU": {yearHigh:768.09,latestClose:446.79},
+  "MCO": {yearHigh:491.74,latestClose:438.67},
+  "SPGI": {yearHigh:517.23,latestClose:426.64},
+  "GS": {yearHigh:820.44,latestClose:805.48},
+  "SOFI": {yearHigh:29.87,latestClose:17.18},
+  "LMT": {yearHigh:651.55,latestClose:642.28},
+  "NBIS": {yearHigh:132.3,latestClose:118.56},
+  "GRNY": {yearHigh:25.81,latestClose:24.27},
+  "CRDO": {yearHigh:163.51,latestClose:101.72},
+  "IGV": {yearHigh:116.77,latestClose:84.34},
+  "EETH": {yearHigh:61.41,latestClose:27.12}
+};
+
+const FINANCIALS = {
+  "TSLA": {quarterly:[{d:"2024 Q1",rev:21.3,gp:3.7,oi:1.17,ni:1.39,eps:0.41,ebitda:2.88,fcf:-2.54,ocf:0.24},{d:"2024 Q2",rev:25.5,gp:4.58,oi:1.6,ni:1.4,eps:0.4,ebitda:3.25,fcf:1.34,ocf:3.61},{d:"2024 Q3",rev:25.18,gp:5.0,oi:2.72,ni:2.17,eps:0.62,ebitda:4.22,fcf:2.74,ocf:6.25},{d:"2024 Q4",rev:25.71,gp:4.18,oi:1.58,ni:2.31,eps:0.66,ebitda:4.36,fcf:2.03,ocf:4.81},{d:"2025 Q1",rev:19.34,gp:3.15,oi:0.4,ni:0.41,eps:0.12,ebitda:2.13,fcf:0.66,ocf:2.16},{d:"2025 Q2",rev:22.5,gp:3.88,oi:0.92,ni:1.17,eps:0.33,ebitda:3.07,fcf:0.15,ocf:2.54},{d:"2025 Q3",rev:28.09,gp:5.05,oi:1.62,ni:1.37,eps:0.39,ebitda:3.66,fcf:3.99,ocf:6.24},{d:"2025 Q4",rev:24.9,gp:5.01,oi:1.41,ni:0.84,eps:0.24,ebitda:2.91,fcf:1.42,ocf:3.81}],annual:[{d:"2021 FY",rev:53.82,gp:13.61,oi:6.52,ni:5.52,eps:1.63,ebitda:9.62,fcf:3.48,ocf:11.5},{d:"2022 FY",rev:81.46,gp:20.85,oi:13.66,ni:12.58,eps:3.62,ebitda:17.66,fcf:7.55,ocf:14.72},{d:"2023 FY",rev:96.77,gp:17.66,oi:8.89,ni:15.0,eps:4.31,ebitda:14.8,fcf:4.36,ocf:13.26},{d:"2024 FY",rev:97.69,gp:17.45,oi:7.08,ni:7.13,eps:2.04,ebitda:14.71,fcf:3.58,ocf:14.92},{d:"2025 FY",rev:94.83,gp:17.09,oi:4.36,ni:3.79,eps:1.08,ebitda:11.76,fcf:6.22,ocf:14.75}]},
+  "AMD": {quarterly:[{d:"2024 Q1",rev:5.47,gp:2.56,oi:0.04,ni:0.12,eps:0.07,ebitda:0.87,fcf:0.38,ocf:0.52},{d:"2024 Q2",rev:5.83,gp:2.86,oi:0.27,ni:0.27,eps:0.16,ebitda:1.09,fcf:0.44,ocf:0.59},{d:"2024 Q3",rev:6.82,gp:3.42,oi:0.72,ni:0.77,eps:0.47,ebitda:1.6,fcf:0.5,ocf:0.63},{d:"2024 Q4",rev:7.66,gp:3.88,oi:0.87,ni:0.48,eps:0.3,ebitda:1.69,fcf:1.09,ocf:1.3},{d:"2025 Q1",rev:7.44,gp:3.74,oi:0.81,ni:0.71,eps:0.44,ebitda:1.59,fcf:0.73,ocf:0.94},{d:"2025 Q2",rev:7.68,gp:3.06,oi:-0.13,ni:0.87,eps:0.54,ebitda:0.72,fcf:1.73,ocf:2.01},{d:"2025 Q3",rev:9.25,gp:4.78,oi:1.27,ni:1.24,eps:0.76,ebitda:2.12,fcf:1.9,ocf:2.16},{d:"2025 Q4",rev:10.27,gp:5.58,oi:1.75,ni:1.51,eps:0.92,ebitda:2.86,fcf:2.38,ocf:2.6}],annual:[{d:"2021 FY",rev:16.43,gp:7.93,oi:3.65,ni:3.16,eps:2.57,ebitda:4.17,fcf:3.22,ocf:3.52},{d:"2022 FY",rev:23.6,gp:10.6,oi:1.26,ni:1.32,eps:0.84,ebitda:5.53,fcf:3.12,ocf:3.56},{d:"2023 FY",rev:22.68,gp:10.46,oi:0.4,ni:0.85,eps:0.53,ebitda:4.15,fcf:1.12,ocf:1.67},{d:"2024 FY",rev:25.79,gp:12.72,oi:1.9,ni:1.64,eps:1.0,ebitda:5.26,fcf:2.4,ocf:3.04},{d:"2025 FY",rev:34.64,gp:17.15,oi:3.69,ni:4.33,eps:2.65,ebitda:7.28,fcf:6.74,ocf:7.71}]},
+  "GOOGL": {quarterly:[{d:"2024 Q1",rev:80.54,gp:46.83,oi:25.47,ni:23.66,eps:1.89,ebitda:31.82,fcf:16.84,ocf:28.85},{d:"2024 Q2",rev:84.74,gp:49.23,oi:27.43,ni:23.62,eps:1.89,ebitda:31.33,fcf:13.45,ocf:26.64},{d:"2024 Q3",rev:88.27,gp:51.79,oi:28.52,ni:26.3,eps:2.12,ebitda:35.74,fcf:17.64,ocf:30.7},{d:"2024 Q4",rev:96.47,gp:55.86,oi:30.97,ni:26.54,eps:2.15,ebitda:36.5,fcf:24.84,ocf:39.11},{d:"2025 Q1",rev:90.23,gp:53.87,oi:30.61,ni:34.54,eps:2.81,ebitda:46.31,fcf:18.95,ocf:36.15},{d:"2025 Q2",rev:96.43,gp:57.39,oi:31.27,ni:28.2,eps:2.31,ebitda:39.19,fcf:5.3,ocf:27.75},{d:"2025 Q3",rev:102.35,gp:60.98,oi:31.23,ni:34.98,eps:2.87,ebitda:49.74,fcf:24.46,ocf:48.41},{d:"2025 Q4",rev:113.9,gp:68.13,oi:36.0,ni:34.45,eps:2.82,ebitda:45.45,fcf:24.55,ocf:52.4}],annual:[{d:"2021 FY",rev:257.64,gp:146.7,oi:78.71,ni:76.03,eps:5.61,ebitda:103.52,fcf:67.01,ocf:91.65},{d:"2022 FY",rev:282.84,gp:156.63,oi:74.84,ni:59.97,eps:4.56,ebitda:85.16,fcf:60.01,ocf:91.5},{d:"2023 FY",rev:307.39,gp:174.06,oi:84.29,ni:73.8,eps:5.8,ebitda:97.97,fcf:69.5,ocf:101.75},{d:"2024 FY",rev:350.02,gp:203.71,oi:112.39,ni:100.12,eps:8.04,ebitda:135.39,fcf:72.76,ocf:125.3},{d:"2025 FY",rev:402.96,gp:240.43,oi:129.17,ni:132.17,eps:10.81,ebitda:179.96,fcf:73.27,ocf:164.71}]},
+  "AMZN": {quarterly:[{d:"2024 Q1",rev:143.31,gp:70.68,oi:15.31,ni:10.43,eps:0.98,ebitda:25.31,fcf:4.06,ocf:18.99},{d:"2024 Q2",rev:147.98,gp:74.19,oi:14.67,ni:13.48,eps:1.26,ebitda:27.87,fcf:7.66,ocf:25.28},{d:"2024 Q3",rev:158.88,gp:77.9,oi:17.41,ni:15.33,eps:1.43,ebitda:32.08,fcf:3.35,ocf:25.97},{d:"2024 Q4",rev:187.79,gp:88.9,oi:21.2,ni:20.0,eps:1.86,ebitda:38.55,fcf:17.8,ocf:45.64},{d:"2025 Q1",rev:155.67,gp:78.69,oi:18.41,ni:17.13,eps:1.59,ebitda:36.48,fcf:-8.0,ocf:17.02},{d:"2025 Q2",rev:167.7,gp:86.89,oi:19.17,ni:18.16,eps:1.68,ebitda:36.6,fcf:0.33,ocf:32.52},{d:"2025 Q3",rev:180.17,gp:91.5,oi:17.42,ni:21.19,eps:1.95,ebitda:45.5,fcf:0.43,ocf:35.52},{d:"2025 Q4",rev:213.39,gp:103.43,oi:24.98,ni:21.19,eps:1.95,ebitda:46.76,fcf:14.94,ocf:54.46}],annual:[{d:"2021 FY",rev:469.82,gp:197.48,oi:24.88,ni:33.36,eps:3.24,ebitda:74.39,fcf:-14.73,ocf:46.33},{d:"2022 FY",rev:513.98,gp:225.15,oi:12.25,ni:-2.72,eps:-0.27,ebitda:38.35,fcf:-16.89,ocf:46.75},{d:"2023 FY",rev:574.78,gp:270.05,oi:36.85,ni:30.43,eps:2.9,ebitda:89.4,fcf:32.22,ocf:84.95},{d:"2024 FY",rev:637.96,gp:311.67,oi:68.59,ni:59.25,eps:5.53,ebitda:123.81,fcf:32.88,ocf:115.88},{d:"2025 FY",rev:716.92,gp:360.51,oi:79.97,ni:77.67,eps:7.17,ebitda:165.34,fcf:7.7,ocf:139.51}]},
+  "MSFT": {quarterly:[{d:"2024 Q3",rev:61.86,gp:43.35,oi:27.58,ni:21.94,eps:2.94,ebitda:33.55,fcf:20.96,ocf:31.92},{d:"2024 Q4",rev:64.73,gp:45.04,oi:27.93,ni:22.04,eps:2.95,ebitda:34.33,fcf:23.32,ocf:37.2},{d:"2025 Q1",rev:65.58,gp:45.49,oi:30.55,ni:24.67,eps:3.3,ebitda:38.23,fcf:19.26,ocf:34.18},{d:"2025 Q2",rev:69.63,gp:47.83,oi:31.65,ni:24.11,eps:3.23,ebitda:36.79,fcf:6.49,ocf:22.29},{d:"2025 Q3",rev:70.07,gp:48.15,oi:32.0,ni:25.82,eps:3.46,ebitda:40.71,fcf:20.3,ocf:37.04},{d:"2025 Q4",rev:76.44,gp:52.43,oi:34.32,ni:27.23,eps:3.65,ebitda:44.43,fcf:25.57,ocf:42.65},{d:"2026 Q1",rev:77.67,gp:53.63,oi:37.96,ni:27.75,eps:3.72,ebitda:48.06,fcf:25.66,ocf:45.06},{d:"2026 Q2",rev:81.27,gp:55.3,oi:38.27,ni:38.46,eps:5.16,ebitda:58.18,fcf:5.88,ocf:35.76}],annual:[{d:"2021 FY",rev:168.09,gp:115.86,oi:69.92,ni:61.27,eps:8.05,ebitda:85.13,fcf:56.12,ocf:76.74},{d:"2022 FY",rev:198.27,gp:135.62,oi:83.38,ni:72.74,eps:9.65,ebitda:100.24,fcf:65.15,ocf:89.03},{d:"2023 FY",rev:211.91,gp:146.05,oi:88.52,ni:72.36,eps:9.68,ebitda:105.14,fcf:59.48,ocf:87.58},{d:"2024 FY",rev:245.12,gp:171.01,oi:109.43,ni:88.14,eps:11.8,ebitda:133.01,fcf:74.07,ocf:118.55},{d:"2025 FY",rev:281.72,gp:193.89,oi:128.53,ni:101.83,eps:13.64,ebitda:160.16,fcf:71.61,ocf:136.16}]},
+  "META": {quarterly:[{d:"2024 Q1",rev:36.45,gp:29.82,oi:13.82,ni:12.37,eps:4.71,ebitda:17.68,fcf:12.85,ocf:19.25},{d:"2024 Q2",rev:39.07,gp:31.76,oi:14.85,ni:13.46,eps:5.16,ebitda:18.87,fcf:11.2,ocf:19.37},{d:"2024 Q3",rev:40.59,gp:33.21,oi:17.35,ni:15.69,eps:6.03,ebitda:22.06,fcf:16.47,ocf:24.72},{d:"2024 Q4",rev:48.38,gp:39.55,oi:23.36,ni:20.84,eps:8.02,ebitda:28.26,fcf:13.56,ocf:27.99},{d:"2025 Q1",rev:42.31,gp:34.74,oi:17.55,ni:16.64,eps:6.43,ebitda:22.52,fcf:11.09,ocf:24.03},{d:"2025 Q2",rev:47.52,gp:39.02,oi:20.44,ni:18.34,eps:7.14,ebitda:25.12,fcf:9.02,ocf:25.56},{d:"2025 Q3",rev:51.24,gp:42.04,oi:20.54,ni:2.71,eps:1.05,ebitda:26.85,fcf:11.17,ocf:30.0},{d:"2025 Q4",rev:59.89,gp:48.99,oi:24.75,ni:22.77,eps:8.87,ebitda:31.47,fcf:14.83,ocf:36.21}],annual:[{d:"2021 FY",rev:117.93,gp:95.28,oi:46.75,ni:39.37,eps:13.77,ebitda:55.27,fcf:39.12,ocf:57.68},{d:"2022 FY",rev:116.61,gp:91.36,oi:28.94,ni:23.2,eps:8.59,ebitda:37.69,fcf:19.04,ocf:50.48},{d:"2023 FY",rev:134.9,gp:108.94,oi:46.75,ni:39.1,eps:14.87,ebitda:59.05,fcf:43.85,ocf:71.11},{d:"2024 FY",rev:164.5,gp:134.34,oi:69.38,ni:62.36,eps:23.86,ebitda:86.88,fcf:54.07,ocf:91.33},{d:"2025 FY",rev:200.97,gp:164.79,oi:83.28,ni:60.46,eps:23.49,ebitda:104.55,fcf:46.11,ocf:115.8}]},
+  "AVGO": {quarterly:[{d:"2024 Q2",rev:12.49,gp:7.78,oi:2.96,ni:2.12,eps:0.44,ebitda:5.58,fcf:4.45,ocf:4.58},{d:"2024 Q3",rev:13.07,gp:8.36,oi:3.79,ni:-1.88,eps:-0.4,ebitda:6.39,fcf:4.79,ocf:4.96},{d:"2024 Q4",rev:14.05,gp:9.0,oi:4.63,ni:4.32,eps:0.9,ebitda:7.29,fcf:5.48,ocf:5.6},{d:"2025 Q1",rev:14.92,gp:10.14,oi:6.26,ni:5.5,eps:1.14,ebitda:6.26,fcf:6.01,ocf:6.11},{d:"2025 Q2",rev:15.0,gp:10.2,oi:5.83,ni:4.96,eps:1.03,ebitda:10.19,fcf:6.41,ocf:6.55},{d:"2025 Q3",rev:15.95,gp:10.7,oi:5.89,ni:4.14,eps:0.85,ebitda:8.03,fcf:7.02,ocf:7.17},{d:"2025 Q4",rev:18.02,gp:12.25,oi:7.51,ni:8.52,eps:1.74,ebitda:9.86,fcf:7.47,ocf:7.7},{d:"2026 Q1",rev:19.31,gp:12.66,oi:8.68,ni:7.35,eps:1.5,ebitda:10.83,fcf:8.01,ocf:8.26}],annual:[{d:"2021 FY",rev:27.45,gp:16.84,oi:8.52,ni:6.74,eps:1.5,ebitda:14.69,fcf:13.32,ocf:13.76},{d:"2022 FY",rev:33.2,gp:22.09,oi:14.22,ni:11.49,eps:2.65,ebitda:19.16,fcf:16.31,ocf:16.74},{d:"2023 FY",rev:35.82,gp:24.69,oi:16.21,ni:14.08,eps:3.3,ebitda:20.55,fcf:17.63,ocf:18.09},{d:"2024 FY",rev:51.57,gp:32.51,oi:13.46,ni:5.89,eps:1.23,ebitda:23.88,fcf:19.41,ocf:19.96},{d:"2025 FY",rev:63.89,gp:43.29,oi:25.48,ni:23.13,eps:4.77,ebitda:34.71,fcf:26.91,ocf:27.54}]},
+  "NVDA": {quarterly:[{d:"2025 Q1",rev:26.04,gp:20.41,oi:16.91,ni:14.88,eps:0.6,ebitda:17.75,fcf:14.98,ocf:15.35},{d:"2025 Q2",rev:30.04,gp:22.57,oi:18.64,ni:16.6,eps:0.67,ebitda:19.71,fcf:13.51,ocf:14.49},{d:"2025 Q3",rev:35.08,gp:26.16,oi:21.87,ni:19.31,eps:0.78,ebitda:22.86,fcf:16.81,ocf:17.63},{d:"2025 Q4",rev:39.33,gp:28.72,oi:24.03,ni:22.09,eps:0.89,ebitda:25.82,fcf:15.55,ocf:16.63},{d:"2026 Q1",rev:44.06,gp:26.67,oi:21.64,ni:18.77,eps:0.76,ebitda:22.58,fcf:26.19,ocf:27.41},{d:"2026 Q2",rev:46.74,gp:33.85,oi:28.44,ni:26.42,eps:1.08,ebitda:31.94,fcf:13.47,ocf:15.37},{d:"2026 Q3",rev:57.01,gp:41.85,oi:36.01,ni:31.91,eps:1.3,ebitda:38.75,fcf:22.11,ocf:23.75},{d:"2026 Q4",rev:68.13,gp:51.09,oi:44.3,ni:42.96,eps:1.76,ebitda:51.28,fcf:34.9,ocf:36.19}],annual:[{d:"2022 FY",rev:26.91,gp:17.48,oi:10.04,ni:9.75,eps:0.38,ebitda:11.35,fcf:8.13,ocf:9.11},{d:"2023 FY",rev:26.97,gp:15.36,oi:4.22,ni:4.37,eps:0.17,ebitda:5.99,fcf:3.81,ocf:5.64},{d:"2024 FY",rev:60.92,gp:44.3,oi:32.97,ni:29.76,eps:1.19,ebitda:35.58,fcf:27.02,ocf:28.09},{d:"2025 FY",rev:130.5,gp:97.86,oi:81.45,ni:72.88,eps:2.94,ebitda:86.14,fcf:60.85,ocf:64.09},{d:"2026 FY",rev:215.94,gp:153.46,oi:130.39,ni:120.07,eps:4.9,ebitda:144.55,fcf:96.68,ocf:102.72}]}
+};
+
+const SEGMENTS = {
+  "NVDA": {cols:["Data Center", "Gaming", "Automotive", "Compute And Networking", "Graphics"],data:[{d:"FY2024 Q2","Data Center":22.56,"Gaming":2.65,"Automotive":0.33,"Compute And Networking":22.68,"Graphics":3.37},{d:"FY2024 Q3","Data Center":26.27,"Gaming":2.88,"Automotive":0.35,"Compute And Networking":26.45,"Graphics":3.59},{d:"FY2024 Q4","Data Center":30.77,"Gaming":3.28,"Automotive":0.45,"Compute And Networking":31.04,"Graphics":4.05},{d:"FY2025 Q1","Data Center":35.58,"Gaming":2.54,"Automotive":0.57,"Compute And Networking":36.04,"Graphics":3.29},{d:"FY2025 Q2","Data Center":39.11,"Gaming":3.76,"Automotive":0.57,"Compute And Networking":39.59,"Graphics":4.47},{d:"FY2025 Q3","Data Center":41.1,"Gaming":4.29,"Automotive":0.59,"Compute And Networking":41.33,"Graphics":5.41},{d:"FY2025 Q4","Data Center":51.22,"Gaming":4.26,"Automotive":0.59,"Compute And Networking":50.91,"Graphics":6.1},{d:"FY2026 Q1","Data Center":62.31,"Gaming":3.73,"Automotive":0.6,"Compute And Networking":61.65,"Graphics":6.48}]},
+  "MSFT": {cols:["Productivity And Business Processes Post Fy2024", "Intelligent Cloud Post Fy2024", "More Personal Computing Post Fy2024", "Productivity And Business Processes Pre Fy2025", "Intelligent Cloud Pre Fy2025", "More Personal Computing Pre Fy2025", "Server Products And Cloud Services Post Fy2024", "Server Products And Cloud Services Pre Fy2025", "Microsoft 365 Commercial Products And Cloud Services", "Office Products And Cloud Services", "Gaming", "Search And News Advertising", "Microsoft 365 Consumer Products And Cloud Services", "Dynamics Products And Cloud Services", "Enterprise And Partner Services", "Microsoft Cloud", "Microsoft 365 Commercial Cloud Growth Gaap", "Microsoft 365 Commercial Cloud Growth Cc"],data:[{d:"FY2024 Q1","Productivity And Business Processes Post Fy2024":27.11,"Intelligent Cloud Post Fy2024":22.14,"More Personal Computing Post Fy2024":12.6,"Productivity And Business Processes Pre Fy2025":19.57,"Intelligent Cloud Pre Fy2025":26.71,"More Personal Computing Pre Fy2025":15.58,"Server Products And Cloud Services Post Fy2024":20.27,"Server Products And Cloud Services Pre Fy2025":24.83,"Microsoft 365 Commercial Products And Cloud Services":19.71,"Office Products And Cloud Services":13.91,"Gaming":5.45,"Search And News Advertising":3.06,"Microsoft 365 Consumer Products And Cloud Services":1.65,"Dynamics Products And Cloud Services":1.74,"Enterprise And Partner Services":1.86,"Microsoft Cloud":35.2,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2024 Q2","Productivity And Business Processes Post Fy2024":28.63,"Intelligent Cloud Post Fy2024":23.79,"More Personal Computing Post Fy2024":12.31,"Productivity And Business Processes Pre Fy2025":20.32,"Intelligent Cloud Pre Fy2025":28.52,"More Personal Computing Pre Fy2025":15.89,"Server Products And Cloud Services Post Fy2024":21.9,"Server Products And Cloud Services Pre Fy2025":26.63,"Microsoft 365 Commercial Products And Cloud Services":20.89,"Office Products And Cloud Services":14.35,"Gaming":5.02,"Search And News Advertising":3.06,"Microsoft 365 Consumer Products And Cloud Services":1.68,"Dynamics Products And Cloud Services":1.81,"Enterprise And Partner Services":1.87,"Microsoft Cloud":36.9,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2024 Q3","Productivity And Business Processes Post Fy2024":28.32,"Intelligent Cloud Post Fy2024":24.09,"More Personal Computing Post Fy2024":13.18,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":22.16,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":20.45,"Office Products And Cloud Services":0.0,"Gaming":5.62,"Search And News Advertising":3.23,"Microsoft 365 Consumer Products And Cloud Services":1.73,"Dynamics Products And Cloud Services":1.85,"Enterprise And Partner Services":1.93,"Microsoft Cloud":38.9,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2024 Q4","Productivity And Business Processes Post Fy2024":29.44,"Intelligent Cloud Post Fy2024":25.54,"More Personal Computing Post Fy2024":14.65,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":23.64,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":21.12,"Office Products And Cloud Services":0.0,"Gaming":6.58,"Search And News Advertising":3.56,"Microsoft 365 Consumer Products And Cloud Services":1.82,"Dynamics Products And Cloud Services":1.91,"Enterprise And Partner Services":1.89,"Microsoft Cloud":40.9,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2025 Q1","Productivity And Business Processes Post Fy2024":29.94,"Intelligent Cloud Post Fy2024":26.75,"More Personal Computing Post Fy2024":13.37,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":24.76,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":21.88,"Office Products And Cloud Services":0.0,"Gaming":5.72,"Search And News Advertising":3.5,"Microsoft 365 Consumer Products And Cloud Services":1.82,"Dynamics Products And Cloud Services":1.93,"Enterprise And Partner Services":1.95,"Microsoft Cloud":42.4,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2025 Q2","Productivity And Business Processes Post Fy2024":33.11,"Intelligent Cloud Post Fy2024":29.88,"More Personal Computing Post Fy2024":13.45,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":27.88,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":24.32,"Office Products And Cloud Services":0.0,"Gaming":5.53,"Search And News Advertising":3.59,"Microsoft 365 Consumer Products And Cloud Services":2.04,"Dynamics Products And Cloud Services":2.14,"Enterprise And Partner Services":1.99,"Microsoft Cloud":46.7,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2025 Q3","Productivity And Business Processes Post Fy2024":33.02,"Intelligent Cloud Post Fy2024":30.9,"More Personal Computing Post Fy2024":13.76,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":28.87,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":23.97,"Office Products And Cloud Services":0.0,"Gaming":5.51,"Search And News Advertising":3.7,"Microsoft 365 Consumer Products And Cloud Services":2.2,"Dynamics Products And Cloud Services":2.14,"Enterprise And Partner Services":2.02,"Microsoft Cloud":49.1,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2025 Q4","Productivity And Business Processes Post Fy2024":34.12,"Intelligent Cloud Post Fy2024":32.91,"More Personal Computing Post Fy2024":14.25,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":30.86,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":24.52,"Office Products And Cloud Services":0.0,"Gaming":5.96,"Search And News Advertising":3.81,"Microsoft 365 Consumer Products And Cloud Services":2.31,"Dynamics Products And Cloud Services":2.2,"Enterprise And Partner Services":2.04,"Microsoft Cloud":51.5,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0}]},
+  "META": {cols:["United States And Canada Advertising", "Europe Advertising", "Asia Pacific Advertising", "Rest Of World Advertising", "Advertising", "Family Of Apps", "Reality Labs"],data:[{d:"FY2024 Q1","United States And Canada Advertising":15.45,"Europe Advertising":8.33,"Asia Pacific Advertising":7.34,"Rest Of World Advertising":4.52,"Advertising":35.63,"Family Of Apps":36.02,"Reality Labs":0.44},{d:"FY2024 Q2","United States And Canada Advertising":16.59,"Europe Advertising":9.13,"Asia Pacific Advertising":7.72,"Rest Of World Advertising":4.88,"Advertising":38.33,"Family Of Apps":38.72,"Reality Labs":0.35},{d:"FY2024 Q3","United States And Canada Advertising":17.39,"Europe Advertising":9.36,"Asia Pacific Advertising":8.05,"Rest Of World Advertising":5.09,"Advertising":39.88,"Family Of Apps":40.32,"Reality Labs":0.27},{d:"FY2024 Q4","United States And Canada Advertising":20.98,"Europe Advertising":11.15,"Asia Pacific Advertising":9.01,"Rest Of World Advertising":5.63,"Advertising":46.78,"Family Of Apps":47.3,"Reality Labs":1.08},{d:"FY2025 Q1","United States And Canada Advertising":18.26,"Europe Advertising":9.53,"Asia Pacific Advertising":8.22,"Rest Of World Advertising":5.38,"Advertising":41.39,"Family Of Apps":41.9,"Reality Labs":0.41},{d:"FY2025 Q2","United States And Canada Advertising":20.05,"Europe Advertising":11.37,"Asia Pacific Advertising":9.15,"Rest Of World Advertising":6.0,"Advertising":46.56,"Family Of Apps":47.15,"Reality Labs":0.37},{d:"FY2025 Q3","United States And Canada Advertising":21.33,"Europe Advertising":12.07,"Asia Pacific Advertising":10.02,"Rest Of World Advertising":6.66,"Advertising":50.08,"Family Of Apps":50.77,"Reality Labs":0.47},{d:"FY2025 Q4","United States And Canada Advertising":25.64,"Europe Advertising":14.2,"Asia Pacific Advertising":10.89,"Rest Of World Advertising":7.4,"Advertising":58.14,"Family Of Apps":58.94,"Reality Labs":0.95}]},
+  "AMZN": {cols:["Online Stores", "Third Party 3P Seller Services", "Advertising Services", "Subscription Services", "Aws"],data:[{d:"FY2024 Q1","Online Stores":54.67,"Third Party 3P Seller Services":34.6,"Advertising Services":11.82,"Subscription Services":10.72,"Aws":25.04},{d:"FY2024 Q2","Online Stores":55.39,"Third Party 3P Seller Services":36.2,"Advertising Services":12.77,"Subscription Services":10.87,"Aws":26.28},{d:"FY2024 Q3","Online Stores":61.41,"Third Party 3P Seller Services":37.86,"Advertising Services":14.33,"Subscription Services":11.28,"Aws":27.45},{d:"FY2024 Q4","Online Stores":75.56,"Third Party 3P Seller Services":47.48,"Advertising Services":17.29,"Subscription Services":11.51,"Aws":28.79},{d:"FY2025 Q1","Online Stores":57.41,"Third Party 3P Seller Services":36.51,"Advertising Services":13.92,"Subscription Services":11.71,"Aws":29.27},{d:"FY2025 Q2","Online Stores":61.48,"Third Party 3P Seller Services":40.35,"Advertising Services":15.69,"Subscription Services":12.21,"Aws":30.87},{d:"FY2025 Q3","Online Stores":67.41,"Third Party 3P Seller Services":42.49,"Advertising Services":17.7,"Subscription Services":12.57,"Aws":33.01},{d:"FY2025 Q4","Online Stores":82.99,"Third Party 3P Seller Services":52.82,"Advertising Services":21.32,"Subscription Services":13.12,"Aws":35.58}]},
+  "TSLA": {cols:["Automotive Sales", "Automotive Regulatory Credits", "Automotive Leasing", "Total Automotive", "Energy Generation And Storage Segment", "Services And Other"],data:[{d:"FY2024 Q1","Automotive Sales":16.46,"Automotive Regulatory Credits":0.44,"Automotive Leasing":0.48,"Total Automotive":17.38,"Energy Generation And Storage Segment":1.64,"Services And Other":2.29},{d:"FY2024 Q2","Automotive Sales":18.53,"Automotive Regulatory Credits":0.89,"Automotive Leasing":0.46,"Total Automotive":19.88,"Energy Generation And Storage Segment":3.01,"Services And Other":2.61},{d:"FY2024 Q3","Automotive Sales":18.83,"Automotive Regulatory Credits":0.74,"Automotive Leasing":0.45,"Total Automotive":20.02,"Energy Generation And Storage Segment":2.38,"Services And Other":2.79},{d:"FY2024 Q4","Automotive Sales":18.66,"Automotive Regulatory Credits":0.69,"Automotive Leasing":0.45,"Total Automotive":19.8,"Energy Generation And Storage Segment":3.06,"Services And Other":2.85},{d:"FY2025 Q1","Automotive Sales":12.93,"Automotive Regulatory Credits":0.59,"Automotive Leasing":0.45,"Total Automotive":13.97,"Energy Generation And Storage Segment":2.73,"Services And Other":2.64},{d:"FY2025 Q2","Automotive Sales":15.79,"Automotive Regulatory Credits":0.44,"Automotive Leasing":0.43,"Total Automotive":16.66,"Energy Generation And Storage Segment":2.79,"Services And Other":3.05},{d:"FY2025 Q3","Automotive Sales":20.36,"Automotive Regulatory Credits":0.42,"Automotive Leasing":0.43,"Total Automotive":21.2,"Energy Generation And Storage Segment":3.42,"Services And Other":3.48},{d:"FY2025 Q4","Automotive Sales":16.75,"Automotive Regulatory Credits":0.54,"Automotive Leasing":0.4,"Total Automotive":17.69,"Energy Generation And Storage Segment":3.84,"Services And Other":3.37}]},
+  "AVGO": {cols:["Semiconductor Solutions", "Infrastructure Software", "Subscriptions And Services"],data:[{d:"FY2024 Q2","Semiconductor Solutions":7.2,"Infrastructure Software":5.29,"Subscriptions And Services":5.29},{d:"FY2024 Q3","Semiconductor Solutions":7.27,"Infrastructure Software":5.8,"Subscriptions And Services":5.63},{d:"FY2024 Q4","Semiconductor Solutions":8.23,"Infrastructure Software":5.82,"Subscriptions And Services":1.14},{d:"FY2025 Q1","Semiconductor Solutions":8.21,"Infrastructure Software":6.7,"Subscriptions And Services":4.77},{d:"FY2025 Q2","Semiconductor Solutions":8.41,"Infrastructure Software":6.6,"Subscriptions And Services":6.5},{d:"FY2025 Q3","Semiconductor Solutions":9.17,"Infrastructure Software":6.79,"Subscriptions And Services":6.7},{d:"FY2025 Q4","Semiconductor Solutions":11.07,"Infrastructure Software":6.94,"Subscriptions And Services":-0.9},{d:"FY2026 Q1","Semiconductor Solutions":12.52,"Infrastructure Software":6.8,"Subscriptions And Services":5.18}]},
+  "AMD": {cols:["Computing And Graphics", "Enterprise Embedded And Semi Custom", "Data Center", "Client", "Gaming", "Total Client And Gaming", "Embedded"],data:[{d:"FY2024 Q1","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":2.34,"Client":1.37,"Gaming":0.92,"Total Client And Gaming":2.29,"Embedded":0.85},{d:"FY2024 Q2","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":2.83,"Client":1.49,"Gaming":0.65,"Total Client And Gaming":2.14,"Embedded":0.86},{d:"FY2024 Q3","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":3.55,"Client":1.88,"Gaming":0.46,"Total Client And Gaming":2.34,"Embedded":0.93},{d:"FY2024 Q4","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":3.86,"Client":2.31,"Gaming":0.56,"Total Client And Gaming":2.88,"Embedded":0.92},{d:"FY2025 Q1","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":3.67,"Client":2.29,"Gaming":0.65,"Total Client And Gaming":2.94,"Embedded":0.82},{d:"FY2025 Q2","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":3.24,"Client":2.5,"Gaming":1.12,"Total Client And Gaming":3.62,"Embedded":0.82},{d:"FY2025 Q3","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":4.34,"Client":2.75,"Gaming":1.3,"Total Client And Gaming":4.05,"Embedded":0.86},{d:"FY2025 Q4","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":5.38,"Client":3.1,"Gaming":0.84,"Total Client And Gaming":3.94,"Embedded":0.95}]},
+  "GOOGL": {cols:["Google Search And Other", "Youtube Ads", "Google Subscriptions Platforms And Devices", "Google Cloud", "Emea", "Apac"],data:[{d:"FY2024 Q1","Google Search And Other":46.16,"Youtube Ads":8.09,"Google Subscriptions Platforms And Devices":8.74,"Google Cloud":9.57,"Emea":23.79,"Apac":13.29},{d:"FY2024 Q2","Google Search And Other":48.51,"Youtube Ads":8.66,"Google Subscriptions Platforms And Devices":9.31,"Google Cloud":10.35,"Emea":24.68,"Apac":13.82},{d:"FY2024 Q3","Google Search And Other":49.38,"Youtube Ads":8.92,"Google Subscriptions Platforms And Devices":10.66,"Google Cloud":11.35,"Emea":25.47,"Apac":14.55},{d:"FY2024 Q4","Google Search And Other":54.03,"Youtube Ads":10.47,"Google Subscriptions Platforms And Devices":11.63,"Google Cloud":11.96,"Emea":28.18,"Apac":15.16},{d:"FY2025 Q1","Google Search And Other":50.7,"Youtube Ads":8.93,"Google Subscriptions Platforms And Devices":10.38,"Google Cloud":12.26,"Emea":25.92,"Apac":14.85},{d:"FY2025 Q2","Google Search And Other":54.19,"Youtube Ads":9.8,"Google Subscriptions Platforms And Devices":11.2,"Google Cloud":13.62,"Emea":28.26,"Apac":16.48},{d:"FY2025 Q3","Google Search And Other":56.57,"Youtube Ads":10.26,"Google Subscriptions Platforms And Devices":12.87,"Google Cloud":15.16,"Emea":29.91,"Apac":17.82},{d:"FY2025 Q4","Google Search And Other":63.07,"Youtube Ads":11.38,"Google Subscriptions Platforms And Devices":13.58,"Google Cloud":17.66,"Emea":33.06,"Apac":18.53}]}
+};
+
+const SENTIMENT = {};
+
+</script>
+<script>
+const SECTORS = {
+  NVDA:'Semis', AVGO:'Semis', AMD:'Semis', SMCI:'Semis', CDNS:'Semis', MRVL:'Semis', TSM:'Semis', CRDO:'Semis',
+  NBIS:'AI/Infra', PLTR:'AI/Infra',
+  AMZN:'Cloud', MSFT:'Cloud', SNOW:'Cloud', NET:'Cloud', ORCL:'Cloud',
+  CRM:'Software', NOW:'Software', ADSK:'Software', INTU:'Software', DDOG:'Software', HUBS:'Software', IGV:'Software',
+  CRWD:'Cyber', FTNT:'Cyber', ZS:'Cyber', PANW:'Cyber',
+  APP:'Adtech', META:'Adtech',
+  TSLA:'Auto/Robots',
+  SPGI:'Financials', MCO:'Financials', SOFI:'Financials', TOST:'Financials', GS:'Financials', GRNY:'Financials',
+  NFLX:'Ecom', SHOP:'Ecom',
+  LMT:'Defense',
+  EETH:'Crypto', COIN:'Crypto',
+};
+
+const watchlistData = Object.keys(QUOTES_DATA).map(ticker => {
+  const q = QUOTES_DATA[ticker];
+  const ma200 = MA200_DATA[ticker] || q.price;
+  const ohlcv = OHLCV_DATA[ticker] || {};
+  const est = ESTIMATES_DATA[ticker] || {};
+  const yearHigh = ohlcv.yearHigh || q.yearHigh || q.price;
+  const vs200d = ma200 > 0 ? ((q.price - ma200) / ma200 * 100) : 0;
+  const fromHigh = yearHigh > 0 ? ((q.price - yearHigh) / yearHigh * 100) : 0;
+  const fwdPE = (est.forwardEps && est.forwardEps > 0) ? q.price / est.forwardEps : null;
+  let signal = 'Neutral';
+  if (vs200d > 0 && fromHigh > -15) signal = 'Bullish';
+  else if (vs200d < 0 && fromHigh < -25) signal = 'Bearish';
+
+  return {
+    ticker,
+    name: q.name,
+    price: q.price,
+    chg: q.chg,
+    pe: q.pe || null,
+    fwdPE: fwdPE,
+    fromHigh: fromHigh,
+    vs200d: vs200d,
+    signal,
+    sector: SECTORS[ticker] || 'Other',
+    yearHigh,
+    ma200,
+  };
+});
+const liveQuotes = {};
+let ws = null;
+let wsReconnectTimer = null;
+const wsSubscriptions = new Set();
+
+function setWsStatus(status) {
+  const el = document.getElementById('wsStatus');
+  const dots = document.querySelectorAll('.ws-dot');
+  dots.forEach(d => { d.className = 'ws-dot ' + status; });
+  if (el) {
+    if (status === 'connected') el.innerHTML = '<span class="ws-dot connected"></span>Live';
+    else if (status === 'connecting') el.innerHTML = '<span class="ws-dot connecting"></span>Connecting...';
+    else el.innerHTML = '<span class="ws-dot disconnected"></span>Disconnected';
+  }
+}
+
+function connectWebSocket() {
+  if (ws && ws.readyState <= 1) return;
+  setWsStatus('connecting');
+  ws = new WebSocket('wss://ws.finnhub.io?token=' + FINNHUB_KEY);
+
+  ws.onopen = () => {
+    setWsStatus('connected');
+    const allSymbols = watchlistData.map(w => w.ticker);
+    allSymbols.push('SPY', 'QQQ', 'BINANCE:BTCUSDT');
+    allSymbols.forEach(sym => {
+      if (!wsSubscriptions.has(sym)) {
+        ws.send(JSON.stringify({type: 'subscribe', symbol: sym}));
+        wsSubscriptions.add(sym);
+      }
+    });
+    // quotes from init
+  };
+
+  ws.onmessage = (event) => {
+    try {
+      const msg = JSON.parse(event.data);
+      if (msg.type === 'trade' && msg.data && msg.data.length) {
+        msg.data.forEach(trade => {
+          const sym = trade.s;
+          const price = trade.p;
+          if (!sym || !price) return;
+          const wl = watchlistData.find(w => w.ticker === sym);
+          if (wl) {
+            wl.price = price;
+          }
+          liveQuotes[sym] = price;
+          if (sym === 'SPY') updateMacroItem('macroSPY', price);
+          if (sym === 'QQQ') updateMacroItem('macroQQQ', price);
+          if (sym === 'BINANCE:BTCUSDT') updateMacroItem('macroBTC', price, true);
+          document.querySelectorAll(`[data-live="${sym}"]`).forEach(el => {
+            el.textContent = '$' + price.toFixed(2);
+          });
+        });
+      }
+    } catch(e) {}
+  };
+
+  ws.onclose = () => {
+    setWsStatus('disconnected');
+    wsSubscriptions.clear();
+    clearTimeout(wsReconnectTimer);
+    wsReconnectTimer = setTimeout(connectWebSocket, 5000);
+  };
+  ws.onerror = () => setWsStatus('disconnected');
+}
+
+function updateMacroItem(id, price, isBTC) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const valEl = el.querySelector('.value');
+  if (valEl) {
+    valEl.textContent = isBTC ? '$' + Math.round(price).toLocaleString() : price.toFixed(2);
+    valEl.classList.remove('skeleton-pulse');
+  }
+}
+async function fetchMacroQuotes() {
+  for (const sym of ['SPY', 'QQQ']) {
+    try {
+      const resp = await fetch(FH('quote?symbol=' + sym));
+      const d = await resp.json();
+      if (d && d.c > 0) {
+        updateMacroItem('macro' + sym, d.c);
+        const chgEl = document.getElementById('macro' + sym).querySelector('.chg');
+        if (chgEl && d.dp != null) {
+          const cls = d.dp >= 0 ? 'color-green up' : 'color-red down';
+          chgEl.className = 'chg ' + cls;
+          chgEl.style.fontSize = 'var(--text-xs)';
+          chgEl.textContent = (d.dp >= 0 ? '+' : '') + d.dp.toFixed(2) + '%';
+        }
+        liveQuotes[sym] = d.c;
+      }
+    } catch(e) {}
+  }
+  try {
+    const resp = await fetch(FH('quote?symbol=BINANCE:BTCUSDT'));
+    const d = await resp.json();
+    if (d && d.c > 0) {
+      updateMacroItem('macroBTC', d.c, true);
+      const chgEl = document.getElementById('macroBTC').querySelector('.chg');
+      if (chgEl && d.dp != null) {
+        const cls = d.dp >= 0 ? 'color-green up' : 'color-red down';
+        chgEl.className = 'chg ' + cls;
+        chgEl.style.fontSize = 'var(--text-xs)';
+        chgEl.textContent = (d.dp >= 0 ? '+' : '') + d.dp.toFixed(2) + '%';
+      }
+      liveQuotes['BINANCE:BTCUSDT'] = d.c;
+    }
+  } catch(e) {}
+}
+async function fetchQuotesRest() {
+  if (window._fqrRunning) return;
+  window._fqrRunning = true;
+  var tickers = watchlistData.map(function(w){return w.ticker});
+  for (var i = 0; i < tickers.length; i++) {
+    var sym = tickers[i];
+    try {
+      var resp = await fetch(FH('quote?symbol=' + sym));
+      if (resp.status === 429) { await sleep(3000); i--; continue; }
+      var d = await resp.json();
+      if (d && d.c > 0) {
+        var wl = watchlistData.find(function(w){return w.ticker===sym});
+        if (wl) { wl.price = d.c; if (d.dp != null) wl.chg = d.dp; }
+        liveQuotes[sym] = d.c;
+      }
+    } catch(e) {}
+    if (i < tickers.length - 1) await sleep(1200);
+  }
+  window._fqrRunning = false;
+  renderWatchlist(); renderSectorSnapshot();
+}
+
+(function() {
+  const t = document.querySelector('[data-theme-toggle]');
+  const r = document.documentElement;
+  let d = 'dark';
+  r.setAttribute('data-theme', d);
+  t.addEventListener('click', () => {
+    d = d === 'dark' ? 'light' : 'dark';
+    r.setAttribute('data-theme', d);
+    t.setAttribute('aria-label', 'Switch to ' + (d === 'dark' ? 'light' : 'dark') + ' mode');
+    t.innerHTML = d === 'dark'
+      ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>'
+      : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+    renderStockAnalysis();
+    renderChartBuilder();
+  });
+})();
+const defaultWatchlistDefs = {
+  watchlist: Object.keys(QUOTES_DATA),
+  portfolio: ['NVDA','AVGO','AMD','MSFT','AMZN','TSLA','META','CRM','PLTR','COIN','NFLX','SPGI'],
+  asetups: ['NVDA','MRVL','TSM','CRM','MSFT','COIN'],
+  earnings: ['NVDA','AVGO','CRM','SNOW','DDOG','CRWD','PANW','COIN'],
+};
+const _LS = (function() { try { return window['local' + 'Storage']; } catch(e) { return null; } })();
+function loadWatchlistDefs() {
+  try {
+    if (_LS) { const stored = _LS.getItem('ttn_watchlists'); if (stored) return JSON.parse(stored); }
+  } catch(e) {}
+  return JSON.parse(JSON.stringify(defaultWatchlistDefs));
+}
+function saveWatchlistDefs() {
+  try { if (_LS) _LS.setItem('ttn_watchlists', JSON.stringify(watchlistDefs)); } catch(e) {}
+}
+let watchlistDefs = loadWatchlistDefs();
+if(!watchlistDefs.watchlist||!Array.isArray(watchlistDefs.watchlist)){watchlistDefs.watchlist=Object.keys(QUOTES_DATA);saveWatchlistDefs();}
+let activeWatchlist = 'watchlist';
+
+function getActiveTickerArray() {
+  const def = watchlistDefs[activeWatchlist];
+  if (!def) return watchlistData.map(w => w.ticker);
+  return def;
+}
+function getActiveTickerSet() {
+  const def = watchlistDefs[activeWatchlist];
+  if (!def) return null;
+  return new Set(def);
+}
+function subscribeNewTicker(ticker) {
+  if (ws && ws.readyState === 1 && !wsSubscriptions.has(ticker)) {
+    ws.send(JSON.stringify({type: 'subscribe', symbol: ticker}));
+    wsSubscriptions.add(ticker);
+  }
+  if (!watchlistData.find(w => w.ticker === ticker)) {
+    const q = QUOTES_DATA[ticker];
+    if (q) {
+      const ma200 = MA200_DATA[ticker] || q.price;
+      const ohlcv = OHLCV_DATA[ticker] || {};
+      const est = ESTIMATES_DATA[ticker] || {};
+      const yearHigh = ohlcv.yearHigh || q.yearHigh || q.price;
+      const vs200d = ma200 > 0 ? ((q.price - ma200) / ma200 * 100) : 0;
+      const fromHigh = yearHigh > 0 ? ((q.price - yearHigh) / yearHigh * 100) : 0;
+      const fwdPE = (est.forwardEps && est.forwardEps > 0) ? q.price / est.forwardEps : null;
+      let signal = 'Neutral';
+      if (vs200d > 0 && fromHigh > -15) signal = 'Bullish';
+      else if (vs200d < 0 && fromHigh < -25) signal = 'Bearish';
+      watchlistData.push({ ticker, name: q.name, price: q.price, chg: q.chg, pe: q.pe || null, fwdPE, fromHigh, vs200d, signal, sector: SECTORS[ticker] || 'Other', yearHigh, ma200 });
+    } else {
+      watchlistData.push({ ticker, name: ticker, price: 0, chg: 0, pe: null, fwdPE: null, fromHigh: 0, vs200d: 0, signal: 'Neutral', sector: 'Other', yearHigh: 0, ma200: 0 });
+    }
+    subscribeNewTicker(ticker);
+  }
+}
+function updateTickerInputBar() {
+  const bar = document.getElementById('wlTickerInputBar');
+  if (bar) bar.style.display = (watchlistDefs[activeWatchlist] != null) ? 'flex' : 'none';
+}
+function rebuildWatchlistTabs() {
+  const bar = document.getElementById('watchlistBar');
+  if (!bar) return;
+  const addBtn = bar.querySelector('.wl-tab-add');
+  bar.querySelectorAll('.wl-tab').forEach(t => t.remove());
+  Object.keys(watchlistDefs).forEach(key => {
+    const btn = document.createElement('button');
+    btn.className = 'wl-tab' + (key === activeWatchlist ? ' active' : '');
+    btn.dataset.wl = key;
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'wl-tab-name';
+    nameSpan.textContent = key === 'watchlist' ? 'Watchlist' : key.charAt(0).toUpperCase() + key.slice(1);
+    btn.appendChild(nameSpan);
+    const countSpan = document.createElement('span');
+    countSpan.className = 'count';
+    countSpan.textContent = watchlistDefs[key] ? watchlistDefs[key].length : Object.keys(QUOTES_DATA).length;
+    btn.appendChild(countSpan);
+    const closeBtn=document.createElement('button');
+    closeBtn.className='wl-tab-close';closeBtn.title='Delete list';closeBtn.innerHTML='&times;';
+    closeBtn.addEventListener('click',(e)=>{e.stopPropagation();deleteWatchlistTab(key);});
+    btn.appendChild(closeBtn);
+    btn.addEventListener('click', () => {
+      bar.querySelectorAll('.wl-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      activeWatchlist = key;
+      renderWatchlist();
+      document.getElementById('wlPanelTitle').textContent = nameSpan.textContent;
+      renderSectorSnapshot();
+      updateTickerInputBar();
+    });
+    btn.addEventListener('dblclick', (e) => {
+      e.preventDefault();
+      const currentName = nameSpan.textContent;
+      const input = document.createElement('input');
+      input.type = 'text'; input.value = currentName; input.className = 'wl-rename-input';
+      input.style.width = Math.max(60, currentName.length * 8) + 'px';
+      nameSpan.style.display = 'none'; btn.insertBefore(input, nameSpan);
+      input.focus(); input.select();
+      const finish = () => {
+        const newName = input.value.trim() || currentName;
+        nameSpan.textContent = newName; nameSpan.style.display = '';
+        if (input.parentNode) input.parentNode.removeChild(input);
+      };
+      input.addEventListener('keydown', (ev) => { if (ev.key === 'Enter') finish(); if (ev.key === 'Escape') { input.value = currentName; finish(); } });
+      input.addEventListener('blur', finish);
+    });
+    bar.insertBefore(btn, addBtn);
+  });
+}
+
+function deleteWatchlistTab(key) {
+  delete watchlistDefs[key];
+  saveWatchlistDefs();
+  if (activeWatchlist === key) {
+    const keys = Object.keys(watchlistDefs);
+    activeWatchlist = keys.length ? keys[0] : null;
+  }
+  if (!Object.keys(watchlistDefs).length) {
+    watchlistDefs.watchlist = Object.keys(QUOTES_DATA);
+    activeWatchlist = 'watchlist';
+    saveWatchlistDefs();
+  }
+  rebuildWatchlistTabs();
+  renderWatchlist();
+  updateTickerInputBar();
+  const title = document.getElementById('wlPanelTitle');
+  if (title) title.textContent = activeWatchlist === 'watchlist' ? 'Watchlist' : activeWatchlist.charAt(0).toUpperCase() + activeWatchlist.slice(1);
+}
+document.querySelector('.wl-tab-add').addEventListener('click', () => {
+  const name = prompt('New watchlist name:');
+  if (!name || !name.trim()) return;
+  const key = name.trim().toLowerCase().replace(/\s+/g, '_').replace(/[^a-z0-9_]/g, '');
+  if (watchlistDefs[key]) { alert('List already exists'); return; }
+  watchlistDefs[key] = [];
+  saveWatchlistDefs();
+  activeWatchlist = key;
+  rebuildWatchlistTabs();
+  renderWatchlist();
+  updateTickerInputBar();
+  document.getElementById('wlPanelTitle').textContent = name.trim();
+});
+document.getElementById('wlTickerAddInput').addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter') return;
+  const val = e.target.value.toUpperCase().trim();
+  if (!val) return;
+  const tickers = val.split(/[,;\s]+/).filter(t => t.length > 0);
+  const def = watchlistDefs[activeWatchlist];
+  if (!def) return;
+  tickers.forEach(t => {
+    if (!def.includes(t)) {
+      def.push(t);
+      subscribeNewTicker(t);
+    }
+  });
+  saveWatchlistDefs();
+  e.target.value = '';
+  rebuildWatchlistTabs();
+  renderWatchlist();
+});
+rebuildWatchlistTabs();
+updateTickerInputBar();
+let wlSortKey = 'sector';
+let wlSortAsc = true;
+
+const wlColumns = [
+  { key: 'index', label: '#', type: 'num' },
+  { key: 'ticker', label: 'Ticker', type: 'str' },
+  { key: 'price', label: 'Price', type: 'num' },
+  { key: 'chg', label: 'Chg %', type: 'num' },
+  { key: 'pe', label: 'P/E', type: 'num' },
+  { key: 'fwdPE', label: 'Fwd P/E', type: 'num' },
+  { key: 'fromHigh', label: 'From High', type: 'num' },
+  { key: 'vs200d', label: 'vs 200D MA', type: 'num' },
+  { key: 'signal', label: 'Signal', type: 'str' },
+  { key: 'sector', label: 'Sector', type: 'str' },
+];
+
+function renderWatchlistHeader() {
+  const headRow = document.getElementById('wlHead');
+  if (!headRow) return;
+  const isCustom = (watchlistDefs[activeWatchlist] != null);
+  headRow.innerHTML = wlColumns.map(col => {
+    const isSorted = wlSortKey === col.key;
+    const arrow = isSorted ? (wlSortAsc ? ' \u25B2' : ' \u25BC') : '';
+    return `<th class="${isSorted ? 'sorted' : ''}" onclick="sortWatchlist('${col.key}')">${col.label}<span class="sort-arrow">${arrow}</span></th>`;
+  }).join('') + (isCustom ? '<th></th>' : '');
+}
+
+function renderWatchlist() {
+  const tbody = document.getElementById('wlBody');
+  if (!tbody) return;
+  renderWatchlistHeader();
+  const isCustom = (watchlistDefs[activeWatchlist] != null);
+
+  const tickerFilter = getActiveTickerSet();
+  let data = tickerFilter
+    ? watchlistData.filter(w => tickerFilter.has(w.ticker))
+    : [...watchlistData];
+
+  data.sort((a, b) => {
+    const col = wlColumns.find(c => c.key === wlSortKey);
+    if (!col || col.key === 'index') return 0;
+    let va = a[col.key], vb = b[col.key];
+    if (va == null) va = col.type === 'num' ? -Infinity : '';
+    if (vb == null) vb = col.type === 'num' ? -Infinity : '';
+    if (col.type === 'str') return wlSortAsc ? String(va).localeCompare(String(vb)) : String(vb).localeCompare(String(va));
+    return wlSortAsc ? va - vb : vb - va;
+  });
+
+  tbody.innerHTML = data.map((s, i) => {
+    const hasPrice = s.price > 0;
+    const chgColor = s.chg > 0 ? 'color-green' : s.chg < 0 ? 'color-red' : '';
+    const chgSign = s.chg > 0 ? '+' : '';
+    const fromHighColor = s.fromHigh > -5 ? 'color-yellow' : s.fromHigh > -20 ? '' : 'color-red';
+    const maClass = s.vs200d > 2 ? 'above' : s.vs200d > -2 ? 'near' : 'below';
+    const maSign = s.vs200d > 0 ? '+' : '';
+    const sigClass = s.signal === 'Bullish' ? 'bullish' : s.signal === 'Bearish' ? 'bearish' : 'neutral';
+    const fwdPE = (s.fwdPE && s.fwdPE > 0) ? s.fwdPE.toFixed(1) : '\u2014';
+    const pe = (s.pe && s.pe > 0) ? s.pe.toFixed(1) : '\u2014';
+    const priceStr = hasPrice ? '$' + s.price.toFixed(2) : '<span class="skeleton-pulse">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    const chgStr = hasPrice ? chgSign + s.chg.toFixed(2) + '%' : '<span class="skeleton-pulse">&nbsp;&nbsp;&nbsp;&nbsp;</span>';
+    return `<tr>
+      <td class="priority-num">${i+1}</td>
+      <td class="ticker">${s.ticker}</td>
+      <td class="price" data-live="${s.ticker}">${priceStr}</td>
+      <td class="mono ${chgColor}">${chgStr}</td>
+      <td class="mono">${pe}</td>
+      <td class="mono">${fwdPE}</td>
+      <td class="mono ${fromHighColor}">${s.fromHigh.toFixed(1)}%</td>
+      <td><span class="ma-indicator ${maClass}">${maSign}${s.vs200d.toFixed(1)}%</span></td>
+      <td><span class="action-badge ${sigClass}">${s.signal}</span></td>
+      <td>${s.sector}</td>
+      ${isCustom ? `<td><button class="wl-row-delete" onclick="removeTickerFromWatchlist('${s.ticker}')">&times;</button></td>` : ''}
+    </tr>`;
+  }).join('');
+  document.getElementById('wlCount').textContent = data.length;
+}
+
+function sortWatchlist(key) {
+  if (wlSortKey === key) wlSortAsc = !wlSortAsc;
+  else { wlSortKey = key; wlSortAsc = true; }
+  renderWatchlist();
+}
+
+function removeTickerFromWatchlist(ticker) {
+  const def = watchlistDefs[activeWatchlist];
+  if (!def) return;
+  const idx = def.indexOf(ticker);
+  if (idx > -1) def.splice(idx, 1);
+  saveWatchlistDefs();
+  rebuildWatchlistTabs();
+  renderWatchlist();
+}
+function renderSectorSnapshot() {
+}
+function renderSignalCards(){}
+
+let chartInstances = {};
+let currentSATicker = 'NVDA';
+let currentSAPeriod = 'quarterly';
+
+function destroyChart(id) { if (chartInstances[id]) { chartInstances[id].destroy(); delete chartInstances[id]; } }
+
+function getChartColors() {
+  const s = getComputedStyle(document.documentElement);
+  return {
+    green: s.getPropertyValue('--green').trim(), blue: s.getPropertyValue('--blue').trim(),
+    orange: s.getPropertyValue('--orange').trim(), teal: s.getPropertyValue('--teal').trim(),
+    purple: s.getPropertyValue('--purple').trim(), coral: s.getPropertyValue('--coral').trim(),
+    accent: s.getPropertyValue('--accent').trim(), text: s.getPropertyValue('--text-muted').trim(),
+    grid: s.getPropertyValue('--border').trim(), yellow: s.getPropertyValue('--yellow').trim(),
+    textMain: s.getPropertyValue('--text').trim(),
+  };
+}
+
+const SA_METRICS = [
+  { key: 'rev', label: 'Revenue', color: 'green', suffix: 'B', field: 'rev' },
+  { key: 'eps', label: 'EPS (Diluted)', color: 'blue', suffix: '', field: 'eps' },
+  { key: 'ni', label: 'Net Income', color: 'coral', suffix: 'B', field: 'ni' },
+  { key: 'fcf', label: 'Free Cash Flow', color: 'accent', suffix: 'B', field: 'fcf' },
+  { key: 'gm', label: 'Gross Margin', color: 'orange', suffix: '%', field: 'gm' },
+  { key: 'so', label: 'Shares Outstanding', color: 'purple', suffix: 'B', field: 'so' },
+];
+
+function renderStockAnalysis() {
+  const ticker = currentSATicker;
+  const fin = FINANCIALS[ticker];
+  if (!fin) {
+    document.getElementById('saGrid').innerHTML = '<div style="color:var(--text-muted);padding:var(--space-4)">Loading financial data for ' + ticker + '...</div>';
+    document.getElementById('kmGrid').innerHTML = '';
+    return;
+  }
+
+  const data = currentSAPeriod === 'quarterly' ? fin.quarterly : fin.annual;
+  const cfData = currentSAPeriod === 'quarterly' ? fin.quarterly_cf : fin.annual_cf;
+
+  if (!data || data.length === 0) {
+    document.getElementById('saGrid').innerHTML = '<div style="color:var(--text-muted);padding:var(--space-4)">No ' + currentSAPeriod + ' data for ' + ticker + '</div>';
+    return;
+  }
+  const cfMap = {};
+  if (cfData) cfData.forEach(cf => { cfMap[cf.d || cf.period] = cf; });
+
+  const merged = data.map(d => {
+    const cf = cfMap[d.d] || {};
+    const gm = (d.rev && d.rev > 0 && d.gp != null) ? (d.gp / d.rev) * 100 : 0;
+    return { ...d, fcf: d.fcf || cf.fcf || 0, ocf: d.ocf || cf.ocf || 0, gm: gm, so: d.so || 0 };
+  });
+
+  const c = getChartColors();
+  const grid = document.getElementById('saGrid');
+  const labels = merged.map(d => d.d);
+  SA_METRICS.forEach(m => destroyChart('sa_' + m.key));
+
+  grid.innerHTML = SA_METRICS.map(m => {
+    const vals = merged.map(d => d[m.field] || 0);
+    const latest = vals[vals.length - 1];
+    const latestStr = (m.key === 'so' && latest === 0) ? '\u2014' : m.suffix === 'B' ? fmtB(latest) : m.suffix === '%' ? latest.toFixed(1) + '%' : '$' + latest.toFixed(2);
+    const valColor = latest >= 0 ? 'color-green' : 'color-red';
+    return `<div class="sa-card">
+      <div class="sa-card-header">
+        <span class="sa-card-label">${m.label}</span>
+        <span class="sa-card-value ${valColor}">${latestStr}</span>
+      </div>
+      <div class="sa-chart-wrap"><canvas id="sa_${m.key}"></canvas></div>
+    </div>`;
+  }).join('');
+  requestAnimationFrame(() => {
+    SA_METRICS.forEach(m => {
+      const vals = merged.map(d => d[m.field] || 0);
+      const canvas = document.getElementById('sa_' + m.key);
+      if (!canvas) return;
+      const ctx = canvas.getContext('2d');
+      const color = c[m.color] || c.accent;
+
+      chartInstances['sa_' + m.key] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [{
+            data: vals,
+            backgroundColor: vals.map(v => v >= 0 ? color : c.coral + '88'),
+            borderRadius: 3,
+          }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: { backgroundColor: 'rgba(10,14,26,0.92)', titleColor: '#e4e8f1', bodyColor: '#e4e8f1', borderColor: 'rgba(55,75,120,0.4)', borderWidth: 1, padding: 8, cornerRadius: 6 },
+            datalabels: {
+              display: function(context) { return context.dataset.data.length <= 10; },
+              color: c.textMain,
+              font: { size: 8, family: "'JetBrains Mono', monospace", weight: '500' },
+              anchor: 'end', align: 'top', offset: 1,
+              formatter: (v) => {
+                if (v == null) return '';
+                if (m.suffix === 'B') return v.toFixed(1);
+                if (m.suffix === '%') return v.toFixed(1) + '%';
+                return v.toFixed(2);
+              }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { color: c.text, font: { size: 7, family: "'JetBrains Mono'" }, maxRotation: 45 } },
+            y: { display: false, grace: '15%' }
+          },
+          layout: { padding: { top: 18 } }
+        }
+      });
+    });
+  });
+  renderKeyMetrics(ticker, merged);
+}
+
+function renderKeyMetrics(ticker, data) {
+  const kmGrid = document.getElementById('kmGrid');
+  if (!kmGrid || !data.length) return;
+  const latest = data[data.length - 1];
+  const q = QUOTES_DATA[ticker] || {};
+  const est = ESTIMATES_DATA[ticker] || {};
+
+  const metrics = [
+    { label: 'Market Cap', value: q.price && q.pe && q.eps ? fmtMoney(q.price * (q.pe > 0 ? q.price / (q.price / q.pe) : 0) * 1e6) : '\u2014' },
+    { label: 'P/E (TTM)', value: (q.pe && q.pe > 0) ? q.pe.toFixed(1) : '\u2014' },
+    { label: 'Fwd P/E', value: (est.forwardEps && est.forwardEps > 0) ? (q.price / est.forwardEps).toFixed(1) : '\u2014' },
+    { label: 'EPS (TTM)', value: q.eps ? '$' + q.eps.toFixed(2) : '\u2014' },
+    { label: 'Revenue', value: latest.rev ? fmtB(latest.rev) : '\u2014' },
+    { label: 'Net Income', value: latest.ni ? fmtB(latest.ni) : '\u2014' },
+    { label: 'Gross Margin', value: latest.rev > 0 ? ((latest.gp / latest.rev) * 100).toFixed(1) + '%' : '\u2014' },
+    { label: 'FCF', value: latest.fcf ? fmtB(latest.fcf) : '\u2014' },
+  ];
+
+  kmGrid.innerHTML = metrics.map(m =>
+    `<div class="km-item"><div class="km-label">${m.label}</div><div class="km-value">${m.value}</div></div>`
+  ).join('');
+}
+const saInput = document.getElementById('saTickerInput');
+const saAutocomplete = document.getElementById('saAutocomplete');
+const SP500_TICKERS={"AAPL":"Apple","ABBV":"AbbVie","ABT":"Abbott","ACN":"Accenture","ADBE":"Adobe","ADI":"Analog Devices","ADM":"Archer-Daniels","ADP":"ADP","ADSK":"Autodesk","AEE":"Ameren","AEP":"AEP","AES":"AES","AFL":"Aflac","AIG":"AIG","AIZ":"Assurant","AJG":"Gallagher","AKAM":"Akamai","ALB":"Albemarle","ALGN":"Align Tech","ALK":"Alaska Air","ALL":"Allstate","ALLE":"Allegion","AMAT":"Applied Materials","AMCR":"Amcor","AMD":"AMD","AME":"AMETEK","AMGN":"Amgen","AMP":"Ameriprise","AMT":"American Tower","AMZN":"Amazon","ANET":"Arista Networks","ANSS":"ANSYS","AON":"Aon","AOS":"A.O. Smith","APA":"APA","APD":"Air Products","APH":"Amphenol","APP":"AppLovin","APTV":"Aptiv","ARE":"Alexandria RE","ATO":"Atmos Energy","AVB":"AvalonBay","AVGO":"Broadcom","AVY":"Avery Dennison","AWK":"American Water","AXP":"Amex","AZO":"AutoZone","BA":"Boeing","BAC":"BofA","BAX":"Baxter","BBY":"Best Buy","BDX":"Becton Dickinson","BEN":"Franklin Templeton","BIO":"Bio-Rad","BIIB":"Biogen","BK":"BNY Mellon","BKNG":"Booking","BKR":"Baker Hughes","BLK":"BlackRock","BMY":"Bristol-Myers","BR":"Broadridge","BRK.B":"Berkshire","BRO":"Brown Brown","BSX":"Boston Scientific","BWA":"BorgWarner","BXP":"BXP","C":"Citigroup","CAG":"Conagra","CAH":"Cardinal Health","CARR":"Carrier","CAT":"Caterpillar","CB":"Chubb","CBOE":"Cboe","CBRE":"CBRE","CCI":"Crown Castle","CCL":"Carnival","CDNS":"Cadence","CDW":"CDW","CE":"Celanese","CEG":"Constellation Energy","CF":"CF Industries","CFG":"Citizens Financial","CHD":"Church Dwight","CHRW":"CH Robinson","CHTR":"Charter","CI":"Cigna","CINF":"Cincinnati Fin","CL":"Colgate","CLX":"Clorox","CMA":"Comerica","CMCSA":"Comcast","CME":"CME Group","CMG":"Chipotle","CMI":"Cummins","CMS":"CMS Energy","CNC":"Centene","CNP":"CenterPoint","COF":"Capital One","COIN":"Coinbase","COO":"Cooper","COP":"ConocoPhillips","COST":"Costco","CPB":"Campbell","CPRT":"Copart","CPT":"Camden Property","CRDO":"Credo Tech","CRL":"Charles River","CRM":"Salesforce","CRWD":"CrowdStrike","CSCO":"Cisco","CSGP":"CoStar","CSX":"CSX","CTAS":"Cintas","CTRA":"Coterra","CTSH":"Cognizant","CTVA":"Corteva","CVS":"CVS","CVX":"Chevron","CZR":"Caesars","D":"Dominion","DAL":"Delta","DD":"DuPont","DDOG":"Datadog","DE":"Deere","DFS":"Discover","DG":"Dollar General","DGX":"Quest","DHI":"DR Horton","DHR":"Danaher","DIS":"Disney","DLR":"Digital Realty","DLTR":"Dollar Tree","DOV":"Dover","DOW":"Dow","DPZ":"Dominos","DRI":"Darden","DTE":"DTE Energy","DUK":"Duke Energy","DVA":"DaVita","DVN":"Devon Energy","DXCM":"DexCom","EA":"EA","EBAY":"eBay","ECL":"Ecolab","ED":"ConEdison","EETH":"ProShares Ether ETF","EFX":"Equifax","EIX":"Edison Intl","EL":"Estee Lauder","EMN":"Eastman Chemical","EMR":"Emerson","ENPH":"Enphase","EOG":"EOG","EPAM":"EPAM","EQIX":"Equinix","EQR":"Equity Residential","EQT":"EQT","ES":"Eversource","ESS":"Essex Property","ETN":"Eaton","ETR":"Entergy","ETSY":"Etsy","EVRG":"Evergy","EW":"Edwards Life","EXC":"Exelon","EXPD":"Expeditors","EXPE":"Expedia","EXR":"Extra Space","F":"Ford","FANG":"Diamondback","FAST":"Fastenal","FBHS":"Fortune Brands","FCX":"Freeport","FDS":"FactSet","FDX":"FedEx","FE":"FirstEnergy","FFIV":"F5","FIS":"FIS","FISV":"Fiserv","FITB":"Fifth Third","FMC":"FMC","FOX":"Fox","FOXA":"Fox A","FRT":"Federal Realty","FTNT":"Fortinet","FTV":"Fortive","GD":"General Dynamics","GE":"GE Aerospace","GILD":"Gilead","GIS":"General Mills","GL":"Globe Life","GLW":"Corning","GM":"GM","GNRC":"Generac","GOOG":"Alphabet C","GOOGL":"Alphabet A","GPC":"Genuine Parts","GPN":"Global Payments","GRMN":"Garmin","GRNY":"Granny Shots ETF","GS":"Goldman Sachs","GWW":"Grainger","HAL":"Halliburton","HAS":"Hasbro","HBAN":"Huntington","HCA":"HCA","HD":"Home Depot","HOLX":"Hologic","HON":"Honeywell","HPE":"HPE","HPQ":"HP","HRL":"Hormel","HSIC":"Henry Schein","HST":"Host Hotels","HSY":"Hershey","HUBS":"HubSpot","HUM":"Humana","HWM":"Howmet","IBM":"IBM","ICE":"ICE","IDXX":"IDEXX","IEX":"IDEX","IFF":"IFF","IGV":"iShares Software ETF","ILMN":"Illumina","INCY":"Incyte","INTC":"Intel","INTU":"Intuit","INVH":"Invitation Homes","IP":"Intl Paper","IPG":"Interpublic","IQV":"IQVIA","IR":"Ingersoll Rand","IRM":"Iron Mountain","ISRG":"Intuitive Surgical","IT":"Gartner","ITW":"Illinois Tool","IVZ":"Invesco","J":"Jacobs","JBHT":"JB Hunt","JCI":"Johnson Controls","JKHY":"Jack Henry","JNJ":"J&J","JNPR":"Juniper","JPM":"JPMorgan","K":"Kellanova","KDP":"Keurig DrPepper","KEY":"KeyCorp","KEYS":"Keysight","KHC":"Kraft Heinz","KIM":"Kimco","KLAC":"KLA","KMB":"Kimberly-Clark","KMI":"Kinder Morgan","KMX":"CarMax","KO":"Coca-Cola","KR":"Kroger","L":"Loews","LDOS":"Leidos","LEN":"Lennar","LH":"Labcorp","LHX":"L3Harris","LIN":"Linde","LKQ":"LKQ","LLY":"Eli Lilly","LMT":"Lockheed Martin","LNC":"Lincoln Natl","LNT":"Alliant Energy","LOW":"Lowes","LRCX":"Lam Research","LUV":"Southwest","LVS":"Las Vegas Sands","LW":"Lamb Weston","LYB":"LyondellBasell","LYV":"Live Nation","MA":"Mastercard","MAA":"Mid-America","MAR":"Marriott","MAS":"Masco","MCD":"McDonalds","MCHP":"Microchip","MCK":"McKesson","MCO":"Moodys","MDLZ":"Mondelez","MDT":"Medtronic","MET":"MetLife","META":"Meta","MGM":"MGM","MHK":"Mohawk","MKC":"McCormick","MKTX":"MarketAxess","MLM":"Martin Marietta","MMC":"Marsh McLennan","MMM":"3M","MNST":"Monster","MO":"Altria","MOH":"Molina","MOS":"Mosaic","MPC":"Marathon Petro","MPWR":"Monolithic Power","MRK":"Merck","MRNA":"Moderna","MRO":"Marathon Oil","MRVL":"Marvell","MS":"Morgan Stanley","MSCI":"MSCI","MSFT":"Microsoft","MSI":"Motorola Sol","MTB":"MT Bank","MTCH":"Match","MTD":"Mettler-Toledo","MU":"Micron","NBIS":"Nebius","NCLH":"Norwegian Cruise","NDAQ":"Nasdaq","NDSN":"Nordson","NEE":"NextEra","NEM":"Newmont","NET":"Cloudflare","NFLX":"Netflix","NI":"NiSource","NKE":"Nike","NOC":"Northrop","NOW":"ServiceNow","NRG":"NRG","NSC":"Norfolk Southern","NTAP":"NetApp","NTRS":"Northern Trust","NUE":"Nucor","NVDA":"NVIDIA","NVR":"NVR","NWL":"Newell","NWS":"News Corp","NWSA":"News Corp A","NXPI":"NXP","O":"Realty Income","ODFL":"Old Dominion","OGN":"Organon","OKE":"ONEOK","OMC":"Omnicom","ON":"ON Semi","ORCL":"Oracle","ORLY":"OReilly","OTIS":"Otis","OXY":"Occidental","PANW":"Palo Alto Networks","PARA":"Paramount","PAYC":"Paycom","PAYX":"Paychex","PCAR":"PACCAR","PCG":"PGE","PEG":"PSEG","PEP":"PepsiCo","PFE":"Pfizer","PFG":"Principal","PG":"P&G","PGR":"Progressive","PH":"Parker-Hannifin","PHM":"PulteGroup","PKG":"Packaging Corp","PKI":"PerkinElmer","PLD":"Prologis","PLTR":"Palantir","PM":"Philip Morris","PNC":"PNC","PNR":"Pentair","PNW":"Pinnacle West","POOL":"Pool Corp","PPG":"PPG","PPL":"PPL","PRU":"Prudential","PSA":"Public Storage","PSX":"Phillips 66","PTC":"PTC","PVH":"PVH","PWR":"Quanta","PYPL":"PayPal","QCOM":"Qualcomm","QRVO":"Qorvo","RCL":"Royal Caribbean","RE":"Everest","REG":"Regency Centers","REGN":"Regeneron","RF":"Regions","RHI":"Robert Half","RJF":"Raymond James","RL":"Ralph Lauren","RMD":"ResMed","ROK":"Rockwell","ROL":"Rollins","ROP":"Roper","ROST":"Ross Stores","RSG":"Republic Svc","RTX":"RTX","SBAC":"SBA Comm","SBUX":"Starbucks","SCHW":"Schwab","SEE":"Sealed Air","SHOP":"Shopify","SHW":"Sherwin-Williams","SJM":"Smucker","SLB":"SLB","SMCI":"Super Micro","SNA":"Snap-on","SNPS":"Synopsys","SNOW":"Snowflake","SO":"Southern Co","SOFI":"SoFi","SPG":"Simon Property","SPGI":"SP Global","SRE":"Sempra","STE":"STERIS","STT":"State Street","STX":"Seagate","STZ":"Constellation Brands","SWK":"Stanley","SWKS":"Skyworks","SYF":"Synchrony","SYK":"Stryker","SYY":"Sysco","T":"AT&T","TAP":"Molson Coors","TDG":"TransDigm","TDY":"Teledyne","TECH":"Bio-Techne","TEL":"TE Connectivity","TER":"Teradyne","TFC":"Truist","TFX":"Teleflex","TGT":"Target","TJX":"TJX","TMO":"Thermo Fisher","TMUS":"T-Mobile","TOST":"Toast","TPR":"Tapestry","TRGP":"Targa","TRMB":"Trimble","TROW":"T Rowe Price","TRV":"Travelers","TSCO":"Tractor Supply","TSLA":"Tesla","TSM":"TSMC","TSN":"Tyson","TT":"Trane","TTWO":"Take-Two","TXN":"Texas Instruments","TXT":"Textron","TYL":"Tyler Tech","UAL":"United Airlines","UDR":"UDR","UHS":"Universal Health","ULTA":"Ulta","UNH":"UnitedHealth","UNP":"Union Pacific","UPS":"UPS","URI":"United Rentals","USB":"US Bancorp","V":"Visa","VFC":"VF Corp","VICI":"VICI","VLO":"Valero","VMC":"Vulcan","VRSK":"Verisk","VRSN":"VeriSign","VRTX":"Vertex","VTR":"Ventas","VTRS":"Viatris","VZ":"Verizon","WAB":"Wabtec","WAT":"Waters","WBA":"Walgreens","WBD":"Warner Bros","WDC":"Western Digital","WEC":"WEC Energy","WELL":"Welltower","WFC":"Wells Fargo","WHR":"Whirlpool","WM":"Waste Mgmt","WMB":"Williams","WMT":"Walmart","WRB":"WR Berkley","WRK":"WestRock","WST":"West Pharma","WTW":"Willis Towers","WY":"Weyerhaeuser","WYNN":"Wynn","XEL":"Xcel Energy","XOM":"Exxon","XRAY":"Dentsply","XYL":"Xylem","YUM":"Yum","ZBH":"Zimmer","ZBRA":"Zebra","ZION":"Zions","ZS":"Zscaler","ZTS":"Zoetis"};
+const allTickers=[...new Set([...Object.keys(QUOTES_DATA),...Object.keys(SP500_TICKERS)])];
+
+function updateSAAndChartBuilder(ticker) {
+  currentSATicker=ticker;renderStockAnalysis();renderChartBuilder();
+  fetchTickerFinancials(ticker); fetchSegments(ticker);
+}
+async function fetchSegments(ticker) {
+  if (!ticker) ticker = currentSATicker;
+  try {
+    var resp = await fetch(FH('stock/revenue-breakdown?symbol=' + ticker + '&period=quarterly'));
+    if (resp.status === 429) return;
+    var d = await resp.json();
+    if (d && d.data && d.data.length) {
+      var cols = {};
+      var rows = d.data.slice(0, 8).reverse().map(function(entry) {
+        var row = { d: entry.period || '' };
+        if (entry.revenue) {
+          Object.keys(entry.revenue).forEach(function(seg) { cols[seg] = true; row[seg] = (entry.revenue[seg] || 0) / 1e9; });
+        }
+        return row;
+      });
+      SEGMENTS[ticker] = { cols: Object.keys(cols), data: rows };
+      renderChartBuilder();
+    }
+  } catch(e) {}
+}
+
+async function fetchTickerFinancials(tk) {
+  console.log('Fetching financials for', tk);
+  document.getElementById('saGrid').innerHTML = '<div style="color:var(--text-muted);padding:var(--space-4)">Fetching live financials for ' + tk + '...</div>';
+
+  try {
+    var resp = await fetch(FH('stock/financials-reported?symbol=' + tk + '&freq=quarterly'));
+    if (resp.status === 429) { await sleep(3000); return fetchTickerFinancials(tk); }
+    var d = await resp.json();
+
+    if (d && d.data && d.data.length) {
+      var q = [];
+      d.data.slice(0, 12).reverse().forEach(function(r) {
+        var p = r.year + ' Q' + r.quarter;
+        var ic = r.report ? r.report.ic || [] : [];
+        var cf = r.report ? r.report.cf || [] : [];
+        var bs = r.report ? r.report.bs || [] : [];
+        var all = ic.concat(cf).concat(bs);
+
+        // Find concept value — handles "us-gaap_" prefix and partial matching
+        function fc() {
+          for (var a = 0; a < arguments.length; a++) {
+            var name = arguments[a];
+            for (var j = 0; j < all.length; j++) {
+              var c = all[j].concept || '';
+              // Match with or without us-gaap_ prefix
+              if (c === name || c === 'us-gaap_' + name || c === 'ifrs-full_' + name) {
+                if (all[j].value != null) return all[j].value;
+              }
+              // Also match by suffix (after last underscore or prefix)
+              var suffix = c.indexOf('_') >= 0 ? c.substring(c.indexOf('_') + 1) : c;
+              if (suffix === name && all[j].value != null) return all[j].value;
+            }
+          }
+          return 0;
+        }
+
+        var rev = fc('Revenues', 'RevenueFromContractWithCustomerExcludingAssessedTax', 
+                      'RevenueFromContractWithCustomerIncludingAssessedTax', 'SalesRevenueNet',
+                      'RevenuesNetOfInterestExpense', 'InterestAndDividendIncomeOperating') / 1e9;
+        var ni = fc('NetIncomeLoss') / 1e9;
+        var eps = fc('EarningsPerShareDiluted', 'EarningsPerShareBasicAndDiluted');
+        var gp = fc('GrossProfit') / 1e9;
+        var oi = fc('OperatingIncomeLoss', 'OperatingIncome') / 1e9;
+        var ocf = fc('NetCashProvidedByUsedInOperatingActivities', 
+                      'NetCashProvidedByUsedInOperatingActivitiesContinuingOperations') / 1e9;
+        var capex = Math.abs(fc('PaymentsToAcquirePropertyPlantAndEquipment',
+                                'PaymentsToAcquireProductiveAssets')) / 1e9;
+        var fcfVal = ocf > 0 ? ocf - capex : 0;
+        var so = fc('WeightedAverageNumberOfDilutedSharesOutstanding',
+                     'WeightedAverageNumberOfSharesOutstandingDiluted') / 1e9;
+
+        q.push({d:p, rev:rev, gp:gp, oi:oi, ni:ni, eps:eps, ebitda:0, fcf:fcfVal, ocf:ocf, so:so});
+      });
+
+      // Build annual
+      var aMap = {};
+      q.forEach(function(x) {
+        var fy = x.d.split(' ')[0] + ' FY';
+        if (!aMap[fy]) aMap[fy] = {d:fy, rev:0, gp:0, oi:0, ni:0, eps:0, ebitda:0, fcf:0, ocf:0, so:0};
+        ['rev','gp','oi','ni','eps','fcf','ocf'].forEach(function(k) { aMap[fy][k] += x[k] || 0; });
+        aMap[fy].so = x.so || aMap[fy].so; // use latest quarter's share count
+      });
+
+      FINANCIALS[tk] = {quarterly: q, annual: Object.values(aMap)};
+      console.log(tk + ' financials loaded:', q.length, 'quarters. Rev Q1:', q[0] ? q[0].rev.toFixed(1) + 'B' : 'N/A');
+      renderStockAnalysis();
+      renderChartBuilder();
+      return;
+    }
+
+    // No data
+    console.warn('No financials-reported data for', tk);
+    document.getElementById('saGrid').innerHTML = '<div style="color:var(--coral);padding:16px">No SEC filing data for ' + tk + '. This ticker may not be supported on Finnhub free tier.</div>';
+
+  } catch(e) {
+    console.error('Financials error:', tk, e);
+    document.getElementById('saGrid').innerHTML = '<div style="color:var(--coral);padding:16px">Error loading ' + tk + ': ' + e.message + '</div>';
+  }
+}
+
+
+
+saInput.addEventListener('input', () => {
+  const val = saInput.value.toUpperCase().trim();
+  if (val.length === 0) { saAutocomplete.classList.remove('open'); return; }
+  const matches = allTickers.filter(t => t.startsWith(val) || ((QUOTES_DATA[t]||{}).name||SP500_TICKERS[t]||'').toUpperCase().includes(val)).slice(0, 10);
+  if (matches.length === 0) { saAutocomplete.classList.remove('open'); return; }
+  saAutocomplete.innerHTML = matches.map(t =>
+    `<div class="ticker-autocomplete-item" data-ticker="${t}"><span class="ticker-sym">${t}</span><span class="ticker-name">${(QUOTES_DATA[t]||{}).name||SP500_TICKERS[t]||''}</span></div>`
+  ).join('');
+  saAutocomplete.classList.add('open');
+  saAutocomplete.querySelectorAll('.ticker-autocomplete-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const t = item.dataset.ticker;
+      saInput.value = t;
+      saAutocomplete.classList.remove('open');
+      updateSAAndChartBuilder(t);
+    });
+  });
+});
+
+saInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    var val = saInput.value.toUpperCase().trim();
+    if (!val) return;
+    saAutocomplete.classList.remove('open');
+    if (/^[A-Z\.]{1,5}$/.test(val)) { updateSAAndChartBuilder(val); }
+    else { var m=allTickers.find(function(t){return t.startsWith(val)}); if(m){saInput.value=m;updateSAAndChartBuilder(m);} }
+  }
+});
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.ticker-search-wrap')) saAutocomplete.classList.remove('open');
+});
+document.querySelectorAll('#saPeriodTabs .metric-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#saPeriodTabs .metric-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentSAPeriod = tab.dataset.period;
+    renderStockAnalysis();
+    renderChartBuilder();
+  });
+});
+async function fetchInsiderBuys() {
+  const targetTickers = ['NVDA','MSFT','AAPL','GOOGL','AMZN','META','TSLA','AMD','COIN','JPM','BAC','INTC','AVGO','CRM','GS','LMT'];
+  const allBuys = [];
+
+  for (let i = 0; i < targetTickers.length; i++) {
+    const sym = targetTickers[i];
+    try {
+      const resp = await fetch(FH('stock/insider-transactions?symbol=' + sym));
+      const json = await resp.json();
+      if (json.data && json.data.length) {
+        json.data.forEach(tx => {
+          if (tx.transactionCode === 'P') {
+            const shares = Math.abs(tx.change || 0);
+            const price = tx.transactionPrice || 0;
+            const value = shares * price;
+            const totalHeld = tx.share || 0;
+            if (value > 0) {
+              allBuys.push({
+                ticker: sym,
+                name: tx.name || 'Unknown',
+                date: tx.transactionDate,
+                shares,
+                totalHeld,
+                price,
+                value,
+              });
+            }
+          }
+        });
+      }
+    } catch (e) {}
+    if (i < targetTickers.length - 1) await sleep(400);
+  }
+  const batchKey = b => b.ticker + '|' + b.name + '|' + b.date;
+  const batchCounts = {};
+  allBuys.forEach(b => { const k = batchKey(b); batchCounts[k] = (batchCounts[k] || 0) + 1; });
+  const filtered = allBuys.filter(b => batchCounts[batchKey(b)] < 3);
+  const cutoff = new Date(); cutoff.setDate(cutoff.getDate() - 90);
+  const recent = filtered.filter(b => new Date(b.date) >= cutoff);
+  const seen = new Set();
+  const deduped = [];
+  recent.sort((a, b) => new Date(b.date) - new Date(a.date));
+  recent.forEach(b => {
+    const key = b.ticker + '|' + b.name;
+    if (!seen.has(key)) { seen.add(key); deduped.push(b); }
+  });
+  renderInsiderBuys(deduped.slice(0, 15));
+}
+
+function renderInsiderBuys(buys) {
+  const tbody = document.getElementById('insiderBody');
+  if (!tbody) return;
+  if (!buys.length) {
+    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);padding:var(--space-4);text-align:center">No recent S&P 500 insider purchases found</td></tr>';
+    return;
+  }
+  tbody.innerHTML = buys.map(b => {
+    let sharesTotalStr = '\u2014';
+    if (b.totalHeld > 0) {
+      sharesTotalStr = b.shares.toLocaleString() + ' / ' + b.totalHeld.toLocaleString();
+    }
+    return `<tr>
+    <td class="ticker">${b.ticker}</td>
+    <td>${b.name}</td>
+    <td class="mono">${fmtDate(b.date)}</td>
+    <td class="mono">${b.shares.toLocaleString()}</td>
+    <td class="mono">${sharesTotalStr}</td>
+    <td class="mono">$${b.price.toFixed(2)}</td>
+    <td class="mono color-green">${fmtMoney(b.value)}</td>
+  </tr>`;
+  }).join('');
+}
+async function fetchMacroEvents() {
+  const el = document.getElementById('macroEventsList');
+  if (!el) return;
+  try {
+    const resp = await fetch(FH('calendar/economic?from='+new Date().toISOString().slice(0,10)+'&to='+new Date(Date.now()+45*86400000).toISOString().slice(0,10)));
+    const json = await resp.json();
+    if (json.economicCalendar && json.economicCalendar.length) {
+      const today = new Date().toISOString().slice(0, 10);
+      const events = json.economicCalendar
+        .filter(e => e.event && e.time >= today)
+        .sort((a, b) => a.time.localeCompare(b.time))
+        .slice(0, 15);
+
+      if (events.length) {
+        el.innerHTML = events.map(e => {
+          const impact = e.impact >= 3 ? 'high' : e.impact >= 2 ? 'med' : 'low';
+          const impactLabel = e.impact >= 3 ? 'High' : e.impact >= 2 ? 'Med' : 'Low';
+          return `<div class="event-row">
+            <span class="event-date">${fmtDate(e.time || e.date)}</span>
+            <span class="event-name">${e.event}</span>
+            <span class="impact-badge ${impact}">${impactLabel}</span>
+          </div>`;
+        }).join('');
+        return;
+      }
+    }
+  } catch (e) { console.error('Macro events error:', e); }
+  el.innerHTML = `
+    <div class="event-row"><span class="event-date">Mar 19</span><span class="event-name">FOMC Decision + Dot Plot + Powell Press Conference</span><span class="impact-badge high">High</span></div>
+    <div class="event-row"><span class="event-date">Mar 20</span><span class="event-name">Initial Jobless Claims</span><span class="impact-badge med">Med</span></div>
+    <div class="event-row"><span class="event-date">Mar 21</span><span class="event-name">S&P Flash PMI</span><span class="impact-badge med">Med</span></div>
+    <div class="event-row"><span class="event-date">Mar 25</span><span class="event-name">Consumer Confidence</span><span class="impact-badge med">Med</span></div>
+    <div class="event-row"><span class="event-date">Mar 27</span><span class="event-name">GDP Q4 Final</span><span class="impact-badge high">High</span></div>
+    <div class="event-row"><span class="event-date">Mar 28</span><span class="event-name">Core PCE (Feb)</span><span class="impact-badge high">High</span></div>
+    <div class="event-row"><span class="event-date">Apr 1</span><span class="event-name">ISM Manufacturing</span><span class="impact-badge med">Med</span></div>
+    <div class="event-row"><span class="event-date">Apr 4</span><span class="event-name">Non-Farm Payrolls</span><span class="impact-badge high">High</span></div>
+    <div class="event-row"><span class="event-date">Apr 10</span><span class="event-name">CPI (Mar)</span><span class="impact-badge high">High</span></div>
+  `;
+}
+async function fetchDailyBrief() {
+  const briefEl = document.getElementById('briefList');
+  const dateEl = document.getElementById('briefDate');
+  if (!briefEl) return;
+
+  try {
+    const resp = await fetch(FH('news?category=general'));
+    const articles = await resp.json();
+    if (!Array.isArray(articles) || !articles.length) {
+      briefEl.innerHTML = '<div style="color:var(--text-muted);font-size:var(--text-sm)">Unable to load news</div>';
+      return;
+    }
+
+    const now = Date.now();
+    const cutoff = now - 72 * 3600000;
+    const recent = articles.filter(a => a.datetime * 1000 > cutoff);
+
+    const macroKW = ['fed', 'fomc', 'inflation', 'cpi', 'ppi', 'gdp', 'jobs', 'employment', 'treasury', 'yield', 'rate', 'powell', 'economy', 'recession'];
+    const sectorKW = ['nvidia', 'nvda', 'ai ', 'chip', 'semi', 'tech', 'cloud', 'software', 'microsoft', 'apple', 'amazon', 'meta', 'google', 'tesla'];
+    const riskKW = ['vix', 'volatil', 'crash', 'sell-off', 'selloff', 'risk', 'war', 'geopolit', 'tariff', 'sanction'];
+
+    function classify(h) {
+      const l = h.toLowerCase();
+      if (riskKW.some(k => l.includes(k))) return 'risk';
+      if (macroKW.some(k => l.includes(k))) return 'macro';
+      if (sectorKW.some(k => l.includes(k))) return 'sector';
+      return 'action';
+    }
+
+    const seen = new Set();
+    const items = [];
+    for (const a of recent) {
+      if (items.length >= 8) break;
+      const key = a.headline.slice(0, 40).toLowerCase();
+      if (seen.has(key)) continue;
+      seen.add(key);
+      items.push(a);
+    }
+
+    if (!items.length) {
+      briefEl.innerHTML = '<div style="color:var(--text-muted);font-size:var(--text-sm)">No recent news available</div>';
+      return;
+    }
+
+    const today = new Date();
+    if (dateEl) dateEl.textContent = today.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+
+    briefEl.innerHTML = items.map(a => {
+      const cat = classify(a.headline);
+      const dt = new Date(a.datetime * 1000);
+      const dateStr = dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      return `<div class="brief-item">
+        <span class="brief-dot ${cat}"></span>
+        <span class="brief-date">${dateStr}</span>
+        <span><a href="${a.url}" target="_blank" rel="noopener" style="color:var(--text);text-decoration:none">${a.headline}</a> <span style="color:var(--text-faint);font-size:var(--text-xs)">${a.source || ''}</span></span>
+      </div>`;
+    }).join('');
+  } catch (e) {
+    briefEl.innerHTML = '<div style="color:var(--text-muted);font-size:var(--text-sm)">Error loading news. Retry in 60s.</div>';
+  }
+}
+let currentChartMetric = 'revenue';
+
+function renderChartBuilder() {
+  const ticker = currentSATicker;
+  const subtitle = document.getElementById('chartBuilderSubtitle');
+  const canvas = document.getElementById('chartBuilder');
+  if (!canvas) return;
+
+  destroyChart('chartBuilder');
+  const c = getChartColors();
+  const segData = SEGMENTS[ticker];
+  const finData = FINANCIALS[ticker];
+
+  if (currentChartMetric === 'revenue' && segData) {
+    const _isA=currentSAPeriod==='annual';
+    const _fsd=segData.data.filter(d=>_isA?(d.d.includes('FY')&&!d.d.includes('Q')):d.d.includes('Q'));
+    if(_fsd.length===0){}else{
+    if (subtitle) subtitle.textContent='Revenue by Segment · '+(_isA?'Annual':'Quarterly')+' · '+ticker;
+    const labels=_fsd.map(d=>d.d);
+    const cols=segData.cols.filter(col=>_fsd.some(d=>(d[col]||0)>0.01));
+    const palette = [c.accent, c.green, c.orange, c.blue, c.purple, c.coral, c.teal, c.yellow];
+    const datasets = cols.map((col, i) => ({
+      label: col.length > 30 ? col.slice(0, 28) + '…' : col,
+      data: segData.data.map(d => d[col] || 0),
+      backgroundColor: palette[i % palette.length] + 'CC',
+      borderRadius: 2,
+    }));
+
+    chartInstances['chartBuilder'] = new Chart(canvas.getContext('2d'), {
+      type: 'bar',
+      data: { labels, datasets },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        plugins: {
+          legend: { display: true, position: 'bottom', labels: { color: c.text, font: { size: 9, family: "'Satoshi'" }, boxWidth: 10, padding: 6 } },
+          tooltip: { mode: 'index', backgroundColor: 'rgba(10,14,26,0.92)', titleColor: '#e4e8f1', bodyColor: '#e4e8f1', borderColor: 'rgba(55,75,120,0.4)', borderWidth: 1, padding: 8, cornerRadius: 6 },
+          datalabels: { display: false }
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { color: c.text, font: { size: 8, family: "'JetBrains Mono'" }, maxRotation: 45 } },
+          y: { stacked: true, grid: { color: c.grid }, ticks: { color: c.text, font: { size: 8, family: "'JetBrains Mono'" }, callback: v => '$' + v.toFixed(0) + 'B' } }
+        },
+        layout: { padding: { top: 4 } }
+      }
+    });
+    return;
+  }}
+  const period = currentSAPeriod === 'annual' ? 'annual' : 'quarterly';
+  const fData = finData ? finData[period] : null;
+  if (!fData || !fData.length) {
+    if (subtitle) subtitle.textContent = 'No data for ' + ticker;
+    return;
+  }
+
+  const labels = fData.map(d => d.d);
+  let chartData, yLabel, chartType = 'bar';
+
+  if (currentChartMetric === 'revenue') {
+    if (subtitle) subtitle.textContent = 'Revenue · ' + ticker;
+    chartData = fData.map(d => d.rev || 0);
+    yLabel = 'B';
+  } else if (currentChartMetric === 'eps') {
+    if (subtitle) subtitle.textContent = 'EPS (Diluted) · ' + ticker;
+    chartData = fData.map(d => d.eps || 0);
+    yLabel = '';
+  } else if (currentChartMetric === 'fcf') {
+    if (subtitle) subtitle.textContent = 'Free Cash Flow · ' + ticker;
+    chartData = fData.map(d => d.fcf || 0);
+    yLabel = 'B';
+  } else if (currentChartMetric === 'margins') {
+    if (subtitle) subtitle.textContent = 'Gross Margin · ' + ticker;
+    chartData = fData.map(d => (d.rev && d.rev > 0 && d.gp != null) ? (d.gp / d.rev * 100) : 0);
+    yLabel = '%';
+    chartType = 'line';
+  }
+
+  const color = currentChartMetric === 'margins' ? c.orange : currentChartMetric === 'eps' ? c.blue : currentChartMetric === 'fcf' ? c.accent : c.green;
+
+  const datasetConfig = chartType === 'line'
+    ? { data: chartData, borderColor: color, backgroundColor: color + '22', fill: true, tension: 0.3, pointRadius: 3, pointBackgroundColor: color }
+    : { data: chartData, backgroundColor: chartData.map(v => v >= 0 ? color + 'CC' : c.coral + '88'), borderRadius: 3 };
+
+  chartInstances['chartBuilder'] = new Chart(canvas.getContext('2d'), {
+    type: chartType,
+    data: { labels, datasets: [{ label: currentChartMetric, ...datasetConfig }] },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: { backgroundColor: 'rgba(10,14,26,0.92)', titleColor: '#e4e8f1', bodyColor: '#e4e8f1', borderColor: 'rgba(55,75,120,0.4)', borderWidth: 1, padding: 8, cornerRadius: 6 },
+        datalabels: {
+          display: chartData.length <= 10,
+          color: c.textMain,
+          font: { size: 8, family: "'JetBrains Mono', monospace", weight: '500' },
+          anchor: 'end', align: 'top', offset: 1,
+          formatter: v => yLabel === '%' ? v.toFixed(1) + '%' : yLabel === 'B' ? v.toFixed(1) : v.toFixed(2)
+        }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: c.text, font: { size: 8, family: "'JetBrains Mono'" }, maxRotation: 45 } },
+        y: { grid: { color: c.grid }, ticks: { color: c.text, font: { size: 8, family: "'JetBrains Mono'" }, callback: v => yLabel === '%' ? v.toFixed(0) + '%' : '$' + v.toFixed(0) + (yLabel === 'B' ? 'B' : '') }, grace: '10%' }
+      },
+      layout: { padding: { top: 18 } }
+    }
+  });
+}
+document.querySelectorAll('#chartMetricTabs .metric-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('#chartMetricTabs .metric-tab').forEach(t => t.classList.remove('active'));
+    tab.classList.add('active');
+    currentChartMetric = tab.dataset.chart;
+    renderChartBuilder();
+  });
+});
+async function init() {
+  renderWatchlist();
+  renderStockAnalysis();
+  renderChartBuilder();
+  connectWebSocket();
+  fetchMacroQuotes();
+  setTimeout(function(){ fetchMacroEvents(); }, 2000);
+  setTimeout(function(){ fetchDailyBrief(); }, 3000);
+  setTimeout(function(){ fetchQuotesRest(); }, 4000);
+  setTimeout(function(){ fetchInsiderBuys(); }, 60000);
+  // Fetch financials for default ticker immediately
+  setTimeout(function(){ fetchTickerFinancials(currentSATicker); fetchSegments(currentSATicker); }, 2000);
+}
+init();
+setInterval(function(){ renderWatchlist(); }, 10000);
+setInterval(function(){ fetchMacroQuotes(); }, 30000);
+setInterval(function(){ fetchQuotesRest(); }, 300000);
+setInterval(function(){ fetchDailyBrief(); }, 300000);
+</script>
+
+<script>
+// ====== SUPABASE SYNC CONFIG ======
+// INSTRUCTIONS: Replace these with your own Supabase project credentials
+// 1. Go to https://supabase.com → New Project (free)
+// 2. Go to Settings → API → Copy "Project URL" and "anon public" key
+// 3. Go to SQL Editor → Run this:
+//    CREATE TABLE watchlists (
+//      id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+//      user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+//      data JSONB NOT NULL DEFAULT '{}',
+//      updated_at TIMESTAMPTZ DEFAULT now()
+//    );
+//    ALTER TABLE watchlists ENABLE ROW LEVEL SECURITY;
+//    CREATE POLICY "Users manage own watchlists" ON watchlists
+//      FOR ALL USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id);
+// 4. Go to Authentication → Settings → Enable "Magic Link" sign-in
+// 5. Paste your credentials below:
+
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'YOUR_SUPABASE_ANON_KEY';
+
+let supaClient = null;
+let syncUser = null;
+let syncEnabled = false;
+
+function initSupabase() {
+  if (SUPABASE_URL === 'YOUR_SUPABASE_URL') {
+    // Not configured yet — skip sync, go straight to app
+    document.getElementById('loginOverlay').classList.add('hidden');
+    return;
+  }
+  supaClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Check if already logged in
+  supaClient.auth.getSession().then(({data:{session}}) => {
+    if (session && session.user) {
+      syncUser = session.user;
+      syncEnabled = true;
+      document.getElementById('loginOverlay').classList.add('hidden');
+      showUserBadge();
+      loadFromCloud();
+    }
+  });
+  // Listen for auth changes (magic link callback)
+  supaClient.auth.onAuthStateChange((event, session) => {
+    if (event === 'SIGNED_IN' && session && session.user) {
+      syncUser = session.user;
+      syncEnabled = true;
+      document.getElementById('loginOverlay').classList.add('hidden');
+      showUserBadge();
+      loadFromCloud();
+    }
+  });
+}
+
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const msg = document.getElementById('loginMsg');
+  const btn = document.getElementById('loginBtn');
+  if (!email || !email.includes('@')) { msg.textContent = 'Enter a valid email'; msg.style.color = 'var(--red)'; return; }
+  if (!supaClient) { msg.textContent = 'Supabase not configured'; msg.style.color = 'var(--red)'; return; }
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  const {error} = await supaClient.auth.signInWithOtp({
+    email,
+    options: { emailRedirectTo: window.location.origin + window.location.pathname }
+  });
+  if (error) {
+    msg.textContent = error.message;
+    msg.style.color = 'var(--red)';
+  } else {
+    msg.textContent = '✓ Check your email! Click the link to sign in.';
+    msg.style.color = 'var(--green)';
+  }
+  btn.disabled = false;
+  btn.textContent = 'Send Magic Link';
+}
+
+function skipLogin() {
+  document.getElementById('loginOverlay').classList.add('hidden');
+}
+
+function showUserBadge() {
+  const topRight = document.querySelector('.topbar-right');
+  if (!topRight || document.getElementById('userMenu')) return;
+  const div = document.createElement('div');
+  div.className = 'user-menu';
+  div.id = 'userMenu';
+  div.innerHTML = '<span class="sync-badge">⚡ Synced</span><button class="logout-btn" onclick="handleLogout()">Logout</button>';
+  topRight.prepend(div);
+}
+
+async function handleLogout() {
+  if (supaClient) await supaClient.auth.signOut();
+  syncUser = null;
+  syncEnabled = false;
+  const um = document.getElementById('userMenu');
+  if (um) um.remove();
+}
+
+async function loadFromCloud() {
+  if (!syncEnabled || !supaClient || !syncUser) return;
+  try {
+    const {data, error} = await supaClient.from('watchlists').select('data').eq('user_id', syncUser.id).single();
+    if (data && data.data) {
+      watchlistDefs = data.data;
+      if (!watchlistDefs.watchlist || !Array.isArray(watchlistDefs.watchlist)) {
+        watchlistDefs.watchlist = Object.keys(QUOTES_DATA);
+      }
+      saveWatchlistDefs(); // also save to localStorage as cache
+      rebuildWatchlistTabs();
+      renderWatchlist();
+      updateTickerInputBar();
+    } else if (error && error.code === 'PGRST116') {
+      // No row yet — push current local data to cloud
+      saveToCloud();
+    }
+  } catch(e) { console.log('Cloud load error:', e); }
+}
+
+async function saveToCloud() {
+  if (!syncEnabled || !supaClient || !syncUser) return;
+  try {
+    await supaClient.from('watchlists').upsert({
+      user_id: syncUser.id,
+      data: watchlistDefs,
+      updated_at: new Date().toISOString()
+    }, { onConflict: 'user_id' });
+  } catch(e) { console.log('Cloud save error:', e); }
+}
+
+// Patch saveWatchlistDefs to also sync to cloud
+const _origSaveWatchlistDefs = saveWatchlistDefs;
+saveWatchlistDefs = function() {
+  _origSaveWatchlistDefs();
+  saveToCloud();
+};
+
+// Init on load
+initSupabase();
+</script>
+</body>
+</html>
