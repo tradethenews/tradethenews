@@ -811,7 +811,7 @@ async function fetchQuotesRest() {
     };
 const _LS = (function() { try { return window['local' + 'Storage']; } catch(e) { return null; } })();
     // One-time migration: clear old default watchlists
-    try { if (_LS && !_LS.getItem('ttn_wl_reset_v2')) { _LS.removeItem('ttn_watchlists'); _LS.setItem('ttn_wl_reset_v2','1'); } } catch(e) {}
+    try { if (_LS && !_LS.getItem('ttn_wl_reset_v3')) { _LS.removeItem('ttn_watchlists'); _LS.setItem('ttn_wl_reset_v3','1'); } } catch(e) {}
 function loadWatchlistDefs() {
   try {
     if (_LS) { const stored = _LS.getItem('ttn_watchlists'); if (stored) return JSON.parse(stored); }
