@@ -1821,6 +1821,11 @@ document.querySelectorAll('#chartMetricTabs .metric-tab').forEach(tab => {
 });
 async function init() {
   renderWatchlist();
+        // Subscribe custom tickers from watchlistDefs not in QUOTES_DATA
+      Object.values(watchlistDefs).flat().forEach(t => {
+        if (t && !QUOTES_DATA[t]) subscribeNewTicker(t);
+      });
+            setTimeout(renderWatchlist, 500); // Re-render after custom tickers added
   renderStockAnalysis();
   renderChartBuilder();
   connectWebSocket();
