@@ -537,9 +537,9 @@ td.rationale { white-space: normal; min-width: 250px; max-width: none; color: va
       <div class="panel-body" style="padding:0;">
         <div class="table-wrap">
           <table class="insider-table">
-            <thead><tr><th>Ticker</th><th>Insider Name</th><th>Date</th><th>Shares</th><th>Shares / Total</th><th>Price</th><th>Value</th></tr></thead>
+            <thead><tr><th>Ticker</th><th>Insider Name</th><th>Title</th><th>Date</th><th>Shares</th><th>Shares / Total</th><th>Price</th><th>Value</th></tr></thead>
             <tbody id="insiderBody">
-              <tr><td colspan="7" style="color:var(--text-muted);padding:var(--space-4);text-align:center">Scanning S&P 500 for recent insider purchases...</td></tr>
+              <tr><td colspan="8" style="color:var(--text-muted);padding:var(--space-4);text-align:center">Scanning S&P 500 for recent insider purchases...</td></tr>
             </tbody>
           </table>
         </div>
@@ -562,7 +562,7 @@ td.rationale { white-space: normal; min-width: 250px; max-width: none; color: va
           <span class="last-updated">Current: 4.25-4.50%</span>
         </div>
         <div class="panel-body">
-          <div class="fedwatch-grid">
+          <div class="fedwatch-grid" id="fedwatchGrid">
             <div class="fedwatch-card"><div class="fedwatch-date">Mar 19</div><div class="fedwatch-prob">97%</div><div class="fedwatch-label">Hold</div></div>
             <div class="fedwatch-card"><div class="fedwatch-date">May 7</div><div class="fedwatch-prob">82%</div><div class="fedwatch-label">Hold</div></div>
             <div class="fedwatch-card"><div class="fedwatch-date">Jun 18</div><div class="fedwatch-prob color-green">58%</div><div class="fedwatch-label">-25bp</div></div>
@@ -1565,7 +1565,7 @@ function renderInsiderBuys(buys) {
   const tbody = document.getElementById('insiderBody');
   if (!tbody) return;
   if (!buys.length) {
-    tbody.innerHTML = '<tr><td colspan="7" style="color:var(--text-muted);padding:var(--space-4);text-align:center">No recent S&P 500 insider purchases found</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="color:var(--text-muted);padding:var(--space-4);text-align:center">No recent S&P 500 insider purchases found</td></tr>';
     return;
   }
   tbody.innerHTML = buys.map(b => {
@@ -1575,7 +1575,7 @@ function renderInsiderBuys(buys) {
     }
     return `<tr>
     <td class="ticker">${b.ticker}</td>
-    <td>${b.name}</td>
+    <td>${b.name}</td><td style="font-size:var(--text-xs);color:var(--text-muted)">${b.title||'Officer/Director'}</td>
     <td class="mono">${fmtDate(b.date)}</td>
     <td class="mono">${b.shares.toLocaleString()}</td>
     <td class="mono">${sharesTotalStr}</td>
@@ -1611,17 +1611,7 @@ async function fetchMacroEvents() {
       }
     }
   } catch (e) { console.error('Macro events error:', e); }
-  el.innerHTML = `
-    <div class="event-row"><span class="event-date">Mar 19</span><span class="event-name">FOMC Decision + Dot Plot + Powell Press Conference</span><span class="impact-badge high">High</span></div>
-    <div class="event-row"><span class="event-date">Mar 20</span><span class="event-name">Initial Jobless Claims</span><span class="impact-badge med">Med</span></div>
-    <div class="event-row"><span class="event-date">Mar 21</span><span class="event-name">S&P Flash PMI</span><span class="impact-badge med">Med</span></div>
-    <div class="event-row"><span class="event-date">Mar 25</span><span class="event-name">Consumer Confidence</span><span class="impact-badge med">Med</span></div>
-    <div class="event-row"><span class="event-date">Mar 27</span><span class="event-name">GDP Q4 Final</span><span class="impact-badge high">High</span></div>
-    <div class="event-row"><span class="event-date">Mar 28</span><span class="event-name">Core PCE (Feb)</span><span class="impact-badge high">High</span></div>
-    <div class="event-row"><span class="event-date">Apr 1</span><span class="event-name">ISM Manufacturing</span><span class="impact-badge med">Med</span></div>
-    <div class="event-row"><span class="event-date">Apr 4</span><span class="event-name">Non-Farm Payrolls</span><span class="impact-badge high">High</span></div>
-    <div class="event-row"><span class="event-date">Apr 10</span><span class="event-name">CPI (Mar)</span><span class="impact-badge high">High</span></div>
-  `;
+  el.innerHTML = '<div style="color:var(--text-muted);font-size:var(--text-sm)">No upcoming events found. Retrying...</div>'; setTimeout(fetchMacroEvents, 30000);
 }
 async function fetchDailyBrief() {
   const briefEl = document.getElementById('briefList');
@@ -1957,6 +1947,67 @@ saveWatchlistDefs = function() {
 
 // Init on load
 initSupabase();
+
+// === LIVE DATA PATCHES (auto-refresh) ===
+async function fetchFedWatch() {
+  var el = document.getElementById('fedwatchGrid');
+  if (!el) return;
+  var today = new Date().toISOString().slice(0,10);
+  var meetings = [
+    {date:'2026-05-06',label:'May 6'},{date:'2026-06-17',label:'Jun 17'},
+    {date:'2026-07-29',label:'Jul 29'},{date:'2026-09-16',label:'Sep 16'},
+    {date:'2026-10-28',label:'Oct 28'},{date:'2026-12-16',label:'Dec 16'}
+  ].filter(function(m){return m.date >= today;});
+  if (!meetings.length) { el.innerHTML = '<div style="color:var(--text-muted)">No upcoming FOMC meetings</div>'; return; }
+  el.innerHTML = meetings.map(function(m){
+    return '<div class="fedwatch-card"><div class="fedwatch-date">'+m.label+'</div><div class="fedwatch-prob" style="color:var(--text-muted)">---</div><div class="fedwatch-label">Awaiting CME data</div></div>';
+  }).join('');
+}
+
+async function fetchDividendCalendar() {
+  var el = document.getElementById('divCalRows');
+  if (!el) return;
+  var today = new Date().toISOString().slice(0,10);
+  var end = new Date(Date.now()+30*86400000).toISOString().slice(0,10);
+  var tickers = getActiveTickerArray();
+  var divs = [];
+  for (var i = 0; i < Math.min(tickers.length, 20); i++) {
+    try {
+      var resp = await fetch(FH('stock/dividend?symbol='+tickers[i]+'&from='+today+'&to='+end));
+      if (resp.status === 429) { await sleep(2000); i--; continue; }
+      var data = await resp.json();
+      if (Array.isArray(data)) {
+        data.filter(function(d){return d.date >= today;}).forEach(function(d){
+          divs.push({ticker:tickers[i], amount:d.amount||0, date:d.date, freq:d.freq||'Quarterly'});
+        });
+      }
+    } catch(e) {}
+    if (i < tickers.length-1) await sleep(500);
+  }
+  divs.sort(function(a,b){return a.date.localeCompare(b.date);});
+  if (!divs.length) { el.innerHTML = '<div style="color:var(--text-muted);padding:8px">No upcoming dividends</div>'; return; }
+  el.innerHTML = divs.slice(0,10).map(function(d){
+    return '<div class="div-calendar-row"><span class="div-ticker">'+d.ticker+'</span><span style="color:var(--text-muted);font-size:var(--text-xs)">'+d.freq+'</span><span class="div-amount">$'+d.amount.toFixed(2)+'</span><span class="div-date">'+fmtDate(d.date)+'</span></div>';
+  }).join('');
+}
+
+// Move Daily Brief below watchlist
+(function(){
+  var titles = document.querySelectorAll('.panel-title');
+  var briefPanel = null;
+  titles.forEach(function(t){ if(t.textContent.trim()==='Daily Brief') briefPanel = t.closest('.panel'); });
+  if (!briefPanel) return;
+  var wlPanel = document.querySelector('.panel.full-width');
+  if (!wlPanel) return;
+  var parent = wlPanel.parentNode;
+  parent.insertBefore(briefPanel, wlPanel.nextSibling);
+  briefPanel.classList.add('full-width');
+  briefPanel.style.gridColumn = '1 / -1';
+})();
+
+setTimeout(fetchFedWatch, 5000);
+setTimeout(fetchDividendCalendar, 10000);
+setInterval(fetchDividendCalendar, 600000);
 </script>
 </body>
 </html>
