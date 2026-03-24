@@ -602,210 +602,66 @@ function fmtB(n) { if (n == null || n === 0) return '$0'; if (Math.abs(n) >= 1) 
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 </script>
 <script>
-const QUOTES_DATA = {
-  "NVDA": {name:"NVIDIA Corporation",price:180.4,pe:36.89,eps:4.89,chg:-0.84,yearHigh:212.19,yearLow:86.62,prevClose:181.93},
-  "AVGO": {name:"Broadcom Inc.",price:315.93,pe:61.46,eps:5.14,chg:-1.67,yearHigh:414.61,yearLow:138.1,prevClose:321.31},
-  "AMD": {name:"Advanced Micro Devices, Inc.",price:199.46,pe:76.42,eps:2.61,chg:1.6,yearHigh:267.08,yearLow:76.48,prevClose:196.31},
-  "SMCI": {name:"Super Micro Computer, Inc.",price:30.35,pe:22.15,eps:1.37,chg:-3.68,yearHigh:62.36,yearLow:27.6,prevClose:31.51},
-  "CDNS": {name:"Cadence Design Systems, Inc.",price:289.64,pe:71.52,eps:4.05,chg:-1.4,yearHigh:376.45,yearLow:221.56,prevClose:293.75},
-  "MRVL": {name:"Marvell Technology, Inc.",price:87.62,pe:28.54,eps:3.07,chg:-3.49,yearHigh:102.77,yearLow:47.09,prevClose:90.79},
-  "TSM": {name:"Taiwan Semiconductor Manufacturing Company Limited",price:339.57,pe:32.94,eps:10.31,chg:-1.85,yearHigh:390.21,yearLow:134.25,prevClose:345.98},
-  "MSFT": {name:"Microsoft Corporation",price:391.79,pe:24.49,eps:16.0,chg:-1.91,yearHigh:555.45,yearLow:344.79,prevClose:399.41},
-  "NOW": {name:"ServiceNow, Inc.",price:113.71,pe:68.09,eps:1.67,chg:-2.58,yearHigh:211.48,yearLow:98.0,prevClose:116.72},
-  "CRM": {name:"Salesforce, Inc.",price:194.34,pe:24.95,eps:7.79,chg:-0.5,yearHigh:296.05,yearLow:174.57,prevClose:195.31},
-  "SNOW": {name:"Snowflake Inc.",price:173.25,pe:-43.86,eps:-3.95,chg:-0.77,yearHigh:280.67,yearLow:120.1,prevClose:174.6},
-  "DDOG": {name:"Datadog, Inc.",price:131.26,pe:423.42,eps:0.31,chg:1.85,yearHigh:201.69,yearLow:81.63,prevClose:128.87},
-  "HUBS": {name:"HubSpot, Inc.",price:262.11,pe:308.36,eps:0.85,chg:-1.3,yearHigh:682.57,yearLow:207.2,prevClose:265.55},
-  "PLTR": {name:"Palantir Technologies Inc.",price:152.77,pe:242.49,eps:0.63,chg:-1.49,yearHigh:207.52,yearLow:66.12,prevClose:155.08},
-  "NET": {name:"Cloudflare, Inc.",price:225.59,pe:-777.9,eps:-0.29,chg:6.65,yearHigh:260.0,yearLow:89.42,prevClose:211.52},
-  "ORCL": {name:"Oracle Corporation",price:152.88,pe:27.45,eps:5.57,chg:-1.17,yearHigh:345.72,yearLow:118.86,prevClose:154.69},
-  "CRWD": {name:"CrowdStrike Holdings, Inc.",price:435.81,pe:-680.95,eps:-0.64,chg:0.6,yearHigh:566.9,yearLow:298.0,prevClose:433.2},
-  "PANW": {name:"Palo Alto Networks, Inc.",price:168.91,pe:94.36,eps:1.79,chg:-0.17,yearHigh:223.61,yearLow:139.57,prevClose:169.19},
-  "FTNT": {name:"Fortinet, Inc.",price:83.39,pe:34.46,eps:2.42,chg:0.28,yearHigh:109.33,yearLow:70.12,prevClose:83.16},
-  "ZS": {name:"Zscaler, Inc.",price:155.99,pe:-362.77,eps:-0.43,chg:-0.01,yearHigh:336.99,yearLow:140.56,prevClose:156.0},
-  "APP": {name:"AppLovin Corporation",price:442.57,pe:44.04,eps:10.05,chg:-3.6,yearHigh:745.61,yearLow:200.5,prevClose:459.09},
-  "META": {name:"Meta Platforms, Inc.",price:615.68,pe:26.23,eps:23.47,chg:-1.12,yearHigh:796.25,yearLow:479.8,prevClose:622.66},
-  "SHOP": {name:"Shopify Inc.",price:123.75,pe:130.26,eps:0.95,chg:-3.17,yearHigh:182.19,yearLow:69.84,prevClose:127.8},
-  "TOST": {name:"Toast, Inc.",price:27.85,pe:49.73,eps:0.56,chg:-1.9,yearHigh:49.66,yearLow:24.35,prevClose:28.39},
-  "COIN": {name:"Coinbase Global, Inc.",price:202.29,pe:45.46,eps:4.45,chg:-3.78,yearHigh:444.65,yearLow:139.36,prevClose:210.23},
-  "EETH": {name:"ProShares - Ether ETF",price:27.12,pe:null,eps:null,chg:-5.77,yearHigh:84.43,yearLow:22.43,prevClose:28.78},
-  "TSLA": {name:"Tesla, Inc.",price:392.78,pe:235.2,eps:1.67,chg:-1.63,yearHigh:498.83,yearLow:214.25,prevClose:399.27},
-  "AMZN": {name:"Amazon.com, Inc.",price:209.87,pe:29.27,eps:7.17,chg:-2.48,yearHigh:258.6,yearLow:161.38,prevClose:215.2},
-  "NFLX": {name:"Netflix, Inc.",price:94.7,pe:37.73,eps:2.51,chg:0.36,yearHigh:134.12,yearLow:75.01,prevClose:94.36},
-  "ADSK": {name:"Autodesk, Inc.",price:248.48,pe:47.6,eps:5.22,chg:-1.76,yearHigh:329.09,yearLow:215.01,prevClose:252.92},
-  "INTU": {name:"Intuit Inc.",price:446.79,pe:29.05,eps:15.38,chg:-2.72,yearHigh:813.7,yearLow:349.0,prevClose:459.28},
-  "MCO": {name:"Moody's Corporation",price:438.67,pe:32.09,eps:13.67,chg:-0.54,yearHigh:546.88,yearLow:378.71,prevClose:441.03},
-  "SPGI": {name:"S&P Global Inc.",price:426.64,pe:29.08,eps:14.67,chg:-1.46,yearHigh:579.05,yearLow:381.61,prevClose:432.94},
-  "GS": {name:"The Goldman Sachs Group, Inc.",price:805.48,pe:15.45,eps:52.13,chg:-0.19,yearHigh:984.7,yearLow:439.38,prevClose:807.04},
-  "SOFI": {name:"SoFi Technologies, Inc.",price:17.18,pe:44.05,eps:0.39,chg:-1.09,yearHigh:32.73,yearLow:8.6,prevClose:17.37},
-  "LMT": {name:"Lockheed Martin Corporation",price:642.28,pe:29.86,eps:21.51,chg:0.94,yearHigh:692.0,yearLow:410.11,prevClose:636.33},
-  "NBIS": {name:"Nebius Group N.V.",price:118.56,pe:988.0,eps:0.12,chg:1.92,yearHigh:141.1,yearLow:18.31,prevClose:116.33},
-  "GRNY": {name:"Tidal Trust III - Fundstrat Granny Shots US Large Cap ETF",price:24.27,pe:26.82,eps:0.91,chg:-1.06,yearHigh:26.33,yearLow:15.0,prevClose:24.53},
-  "CRDO": {name:"Credo Technology Group Holding Ltd",price:101.72,pe:55.89,eps:1.82,chg:-2.25,yearHigh:213.8,yearLow:29.09,prevClose:104.06},
-  "IGV": {name:"iShares Expanded Tech-Software Sector ETF",price:84.34,pe:33.51,eps:2.52,chg:-1.39,yearHigh:117.99,yearLow:76.26,prevClose:85.53}
-};
+const QUOTES_DATA = {};
+    const ESTIMATES_DATA = {};
+    const MA200_DATA = {};
+    const OHLCV_DATA = {};
+    const SEGMENTS = {};
+    const SENTIMENT = {};
+    const SECTORS = {};
+    let watchlistData = [];
 
-const ESTIMATES_DATA = {
-  "NVDA": {forwardEps:4.91442},
-  "AVGO": {forwardEps:12.90215},
-  "AMD": {forwardEps:8.52388},
-  "SMCI": {forwardEps:null},
-  "CDNS": {forwardEps:null},
-  "MRVL": {forwardEps:3.26952},
-  "MSFT": {forwardEps:22.59856},
-  "NOW": {forwardEps:5.28613},
-  "CRM": {forwardEps:15.53244},
-  "SNOW": {forwardEps:2.03082},
-  "DDOG": {forwardEps:3.40567},
-  "HUBS": {forwardEps:15.93484},
-  "PLTR": {forwardEps:1.5486},
-  "NET": {forwardEps:1.91937},
-  "ORCL": {forwardEps:10.24897},
-  "CRWD": {forwardEps:4.88462},
-  "PANW": {forwardEps:4.46958},
-  "FTNT": {forwardEps:3.16004},
-  "ZS": {forwardEps:5.1116},
-  "APP": {forwardEps:17.18456},
-  "META": {forwardEps:42.62787},
-  "TOST": {forwardEps:null},
-  "COIN": {forwardEps:null},
-  "TSLA": {forwardEps:4.68411},
-  "AMZN": {forwardEps:19.0277},
-  "NFLX": {forwardEps:3.31863},
-  "ADSK": {forwardEps:11.29512},
-  "INTU": {forwardEps:23.92633},
-  "MCO": {forwardEps:19.4786},
-  "SPGI": {forwardEps:23.53191},
-  "GS": {forwardEps:65.86361},
-  "SOFI": {forwardEps:1.31319},
-  "LMT": {forwardEps:37.97627}
-};
+    // Live data fetcher for any ticker
+    async function fetchTickerData(ticker) {
+      try {
+        const [qResp, mResp, pResp] = await Promise.all([
+          fetch(FH('quote?symbol='+ticker)),
+          fetch(FH('stock/metric?symbol='+ticker+'&metric=all')),
+          fetch(FH('stock/profile2?symbol='+ticker))
+        ]);
+        const q = await qResp.json();
+        const m = await mResp.json();
+        const p = await pResp.json();
+        if (!q || !q.c) return null;
+        const met = m.metric || {};
+        const pe = met.peBasicExclExtraTTM || met.peTTM || 0;
+        const eps = met.epsBasicExclExtraItemsTTM || met.epsTTM || 0;
+        const fwdPE = met.forwardPE || 0;
+        const yearHigh = met['52WeekHigh'] || q.h || q.c;
+        const ma200 = met['200DayMovingAverage'] || 0;
+        const chg = q.dp || (q.pc > 0 ? ((q.c - q.pc) / q.pc * 100) : 0);
+        const sector = p.finnhubIndustry || 'Other';
+        const name = p.name || ticker;
+        QUOTES_DATA[ticker] = {name, price:q.c, pe, eps, chg};
+        if (fwdPE) ESTIMATES_DATA[ticker] = {forwardEps: eps > 0 ? q.c / fwdPE : null};
+        OHLCV_DATA[ticker] = {yearHigh, latestClose:q.c};
+        MA200_DATA[ticker] = {ma200};
+        SECTORS[ticker] = sector;
+        return {ticker, name, price:q.c, pe, fwdPe:fwdPE, eps, chg, signal:chg>1?'Bullish':chg<-1?'Bearish':'Neutral', sector, yearHigh, ma200};
+      } catch(e) { console.log('fetchTickerData error:', ticker, e); return null; }
+    }
 
-const MA200_DATA = {
-  "NVDA": 168.31, "AVGO": 307.50, "AMD": 184.56, "SMCI": 41.22,
-  "CDNS": 307.69, "MRVL": 78.67, "TSM": 277.24, "MSFT": 460.52,
-  "NOW": 168.16, "CRM": 238.20, "SNOW": 211.53, "DDOG": 134.45,
-  "HUBS": 444.29, "PLTR": 155.15, "NET": 200.37, "ORCL": 200.38,
-  "CRWD": 474.53, "PANW": 192.91, "FTNT": 90.35, "ZS": 255.60,
-  "APP": 482.94, "META": 677.47, "SHOP": 132.82, "TOST": 36.23,
-  "COIN": 263.89, "TSLA": 392.03, "AMZN": 213.29, "NFLX": 109.38,
-  "ADSK": 286.13, "INTU": 631.82, "MCO": 466.98, "SPGI": 475.32,
-  "GS": 720.92, "SOFI": 19.69, "LMT": 536.18, "NBIS": 88.83,
-  "GRNY": 23.63, "CRDO": 108.60, "IGV": 101.43, "EETH": 45.28
-};
+    // Load all watchlist tickers live
+    async function loadWatchlistLive() {
+      const tickers = Object.values(watchlistDefs).flat().filter(Boolean);
+      const unique = [...new Set(tickers)];
+      if (!unique.length) { renderWatchlist(); return; }
+      const el = document.getElementById('wlBody');
+      if (el) el.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:16px">Loading live data...</td></tr>';
+      for (let i = 0; i < unique.length; i++) {
+        const t = unique[i];
+        const data = await fetchTickerData(t);
+        if (data) {
+          const exists = watchlistData.find(w => w.ticker === t);
+          if (!exists) watchlistData.push(data);
+          else Object.assign(exists, data);
+        }
+        renderWatchlist();
+        if (i < unique.length - 1) await sleep(350);
+      }
+    }
 
-const OHLCV_DATA = {
-  "NVDA": {yearHigh:188.88,latestClose:180.4},
-  "AVGO": {yearHigh:358.3,latestClose:315.93},
-  "AMD": {yearHigh:253.39,latestClose:199.46},
-  "SMCI": {yearHigh:54.53,latestClose:30.35},
-  "CDNS": {yearHigh:351.13,latestClose:289.64},
-  "MRVL": {yearHigh:93.44,latestClose:87.62},
-  "TSM": {yearHigh:347.95,latestClose:339.57},
-  "MSFT": {yearHigh:525.35,latestClose:391.79},
-  "NOW": {yearHigh:203.59,latestClose:113.71},
-  "CRM": {yearHigh:265.5,latestClose:194.34},
-  "SNOW": {yearHigh:259.75,latestClose:173.25},
-  "DDOG": {yearHigh:160.2,latestClose:131.26},
-  "HUBS": {yearHigh:603.71,latestClose:262.11},
-  "PLTR": {yearHigh:186.17,latestClose:152.77},
-  "NET": {yearHigh:229.15,latestClose:225.59},
-  "ORCL": {yearHigh:287.19,latestClose:152.88},
-  "CRWD": {yearHigh:535.52,latestClose:435.81},
-  "PANW": {yearHigh:218.23,latestClose:168.91},
-  "FTNT": {yearHigh:103.17,latestClose:83.39},
-  "ZS": {yearHigh:327.4,latestClose:155.99},
-  "APP": {yearHigh:627.11,latestClose:442.57},
-  "META": {yearHigh:742.41,latestClose:615.68},
-  "SHOP": {yearHigh:174.74,latestClose:123.75},
-  "TOST": {yearHigh:43.47,latestClose:27.85},
-  "COIN": {yearHigh:356.88,latestClose:202.29},
-  "TSLA": {yearHigh:451.68,latestClose:392.78},
-  "AMZN": {yearHigh:225.4,latestClose:209.87},
-  "NFLX": {yearHigh:124.26,latestClose:94.7},
-  "ADSK": {yearHigh:314.51,latestClose:248.48},
-  "INTU": {yearHigh:768.09,latestClose:446.79},
-  "MCO": {yearHigh:491.74,latestClose:438.67},
-  "SPGI": {yearHigh:517.23,latestClose:426.64},
-  "GS": {yearHigh:820.44,latestClose:805.48},
-  "SOFI": {yearHigh:29.87,latestClose:17.18},
-  "LMT": {yearHigh:651.55,latestClose:642.28},
-  "NBIS": {yearHigh:132.3,latestClose:118.56},
-  "GRNY": {yearHigh:25.81,latestClose:24.27},
-  "CRDO": {yearHigh:163.51,latestClose:101.72},
-  "IGV": {yearHigh:116.77,latestClose:84.34},
-  "EETH": {yearHigh:61.41,latestClose:27.12}
-};
-
-const FINANCIALS = {
-  "TSLA": {quarterly:[{d:"2024 Q1",rev:21.3,gp:3.7,oi:1.17,ni:1.39,eps:0.41,ebitda:2.88,fcf:-2.54,ocf:0.24},{d:"2024 Q2",rev:25.5,gp:4.58,oi:1.6,ni:1.4,eps:0.4,ebitda:3.25,fcf:1.34,ocf:3.61},{d:"2024 Q3",rev:25.18,gp:5.0,oi:2.72,ni:2.17,eps:0.62,ebitda:4.22,fcf:2.74,ocf:6.25},{d:"2024 Q4",rev:25.71,gp:4.18,oi:1.58,ni:2.31,eps:0.66,ebitda:4.36,fcf:2.03,ocf:4.81},{d:"2025 Q1",rev:19.34,gp:3.15,oi:0.4,ni:0.41,eps:0.12,ebitda:2.13,fcf:0.66,ocf:2.16},{d:"2025 Q2",rev:22.5,gp:3.88,oi:0.92,ni:1.17,eps:0.33,ebitda:3.07,fcf:0.15,ocf:2.54},{d:"2025 Q3",rev:28.09,gp:5.05,oi:1.62,ni:1.37,eps:0.39,ebitda:3.66,fcf:3.99,ocf:6.24},{d:"2025 Q4",rev:24.9,gp:5.01,oi:1.41,ni:0.84,eps:0.24,ebitda:2.91,fcf:1.42,ocf:3.81}],annual:[{d:"2021 FY",rev:53.82,gp:13.61,oi:6.52,ni:5.52,eps:1.63,ebitda:9.62,fcf:3.48,ocf:11.5},{d:"2022 FY",rev:81.46,gp:20.85,oi:13.66,ni:12.58,eps:3.62,ebitda:17.66,fcf:7.55,ocf:14.72},{d:"2023 FY",rev:96.77,gp:17.66,oi:8.89,ni:15.0,eps:4.31,ebitda:14.8,fcf:4.36,ocf:13.26},{d:"2024 FY",rev:97.69,gp:17.45,oi:7.08,ni:7.13,eps:2.04,ebitda:14.71,fcf:3.58,ocf:14.92},{d:"2025 FY",rev:94.83,gp:17.09,oi:4.36,ni:3.79,eps:1.08,ebitda:11.76,fcf:6.22,ocf:14.75}]},
-  "AMD": {quarterly:[{d:"2024 Q1",rev:5.47,gp:2.56,oi:0.04,ni:0.12,eps:0.07,ebitda:0.87,fcf:0.38,ocf:0.52},{d:"2024 Q2",rev:5.83,gp:2.86,oi:0.27,ni:0.27,eps:0.16,ebitda:1.09,fcf:0.44,ocf:0.59},{d:"2024 Q3",rev:6.82,gp:3.42,oi:0.72,ni:0.77,eps:0.47,ebitda:1.6,fcf:0.5,ocf:0.63},{d:"2024 Q4",rev:7.66,gp:3.88,oi:0.87,ni:0.48,eps:0.3,ebitda:1.69,fcf:1.09,ocf:1.3},{d:"2025 Q1",rev:7.44,gp:3.74,oi:0.81,ni:0.71,eps:0.44,ebitda:1.59,fcf:0.73,ocf:0.94},{d:"2025 Q2",rev:7.68,gp:3.06,oi:-0.13,ni:0.87,eps:0.54,ebitda:0.72,fcf:1.73,ocf:2.01},{d:"2025 Q3",rev:9.25,gp:4.78,oi:1.27,ni:1.24,eps:0.76,ebitda:2.12,fcf:1.9,ocf:2.16},{d:"2025 Q4",rev:10.27,gp:5.58,oi:1.75,ni:1.51,eps:0.92,ebitda:2.86,fcf:2.38,ocf:2.6}],annual:[{d:"2021 FY",rev:16.43,gp:7.93,oi:3.65,ni:3.16,eps:2.57,ebitda:4.17,fcf:3.22,ocf:3.52},{d:"2022 FY",rev:23.6,gp:10.6,oi:1.26,ni:1.32,eps:0.84,ebitda:5.53,fcf:3.12,ocf:3.56},{d:"2023 FY",rev:22.68,gp:10.46,oi:0.4,ni:0.85,eps:0.53,ebitda:4.15,fcf:1.12,ocf:1.67},{d:"2024 FY",rev:25.79,gp:12.72,oi:1.9,ni:1.64,eps:1.0,ebitda:5.26,fcf:2.4,ocf:3.04},{d:"2025 FY",rev:34.64,gp:17.15,oi:3.69,ni:4.33,eps:2.65,ebitda:7.28,fcf:6.74,ocf:7.71}]},
-  "GOOGL": {quarterly:[{d:"2024 Q1",rev:80.54,gp:46.83,oi:25.47,ni:23.66,eps:1.89,ebitda:31.82,fcf:16.84,ocf:28.85},{d:"2024 Q2",rev:84.74,gp:49.23,oi:27.43,ni:23.62,eps:1.89,ebitda:31.33,fcf:13.45,ocf:26.64},{d:"2024 Q3",rev:88.27,gp:51.79,oi:28.52,ni:26.3,eps:2.12,ebitda:35.74,fcf:17.64,ocf:30.7},{d:"2024 Q4",rev:96.47,gp:55.86,oi:30.97,ni:26.54,eps:2.15,ebitda:36.5,fcf:24.84,ocf:39.11},{d:"2025 Q1",rev:90.23,gp:53.87,oi:30.61,ni:34.54,eps:2.81,ebitda:46.31,fcf:18.95,ocf:36.15},{d:"2025 Q2",rev:96.43,gp:57.39,oi:31.27,ni:28.2,eps:2.31,ebitda:39.19,fcf:5.3,ocf:27.75},{d:"2025 Q3",rev:102.35,gp:60.98,oi:31.23,ni:34.98,eps:2.87,ebitda:49.74,fcf:24.46,ocf:48.41},{d:"2025 Q4",rev:113.9,gp:68.13,oi:36.0,ni:34.45,eps:2.82,ebitda:45.45,fcf:24.55,ocf:52.4}],annual:[{d:"2021 FY",rev:257.64,gp:146.7,oi:78.71,ni:76.03,eps:5.61,ebitda:103.52,fcf:67.01,ocf:91.65},{d:"2022 FY",rev:282.84,gp:156.63,oi:74.84,ni:59.97,eps:4.56,ebitda:85.16,fcf:60.01,ocf:91.5},{d:"2023 FY",rev:307.39,gp:174.06,oi:84.29,ni:73.8,eps:5.8,ebitda:97.97,fcf:69.5,ocf:101.75},{d:"2024 FY",rev:350.02,gp:203.71,oi:112.39,ni:100.12,eps:8.04,ebitda:135.39,fcf:72.76,ocf:125.3},{d:"2025 FY",rev:402.96,gp:240.43,oi:129.17,ni:132.17,eps:10.81,ebitda:179.96,fcf:73.27,ocf:164.71}]},
-  "AMZN": {quarterly:[{d:"2024 Q1",rev:143.31,gp:70.68,oi:15.31,ni:10.43,eps:0.98,ebitda:25.31,fcf:4.06,ocf:18.99},{d:"2024 Q2",rev:147.98,gp:74.19,oi:14.67,ni:13.48,eps:1.26,ebitda:27.87,fcf:7.66,ocf:25.28},{d:"2024 Q3",rev:158.88,gp:77.9,oi:17.41,ni:15.33,eps:1.43,ebitda:32.08,fcf:3.35,ocf:25.97},{d:"2024 Q4",rev:187.79,gp:88.9,oi:21.2,ni:20.0,eps:1.86,ebitda:38.55,fcf:17.8,ocf:45.64},{d:"2025 Q1",rev:155.67,gp:78.69,oi:18.41,ni:17.13,eps:1.59,ebitda:36.48,fcf:-8.0,ocf:17.02},{d:"2025 Q2",rev:167.7,gp:86.89,oi:19.17,ni:18.16,eps:1.68,ebitda:36.6,fcf:0.33,ocf:32.52},{d:"2025 Q3",rev:180.17,gp:91.5,oi:17.42,ni:21.19,eps:1.95,ebitda:45.5,fcf:0.43,ocf:35.52},{d:"2025 Q4",rev:213.39,gp:103.43,oi:24.98,ni:21.19,eps:1.95,ebitda:46.76,fcf:14.94,ocf:54.46}],annual:[{d:"2021 FY",rev:469.82,gp:197.48,oi:24.88,ni:33.36,eps:3.24,ebitda:74.39,fcf:-14.73,ocf:46.33},{d:"2022 FY",rev:513.98,gp:225.15,oi:12.25,ni:-2.72,eps:-0.27,ebitda:38.35,fcf:-16.89,ocf:46.75},{d:"2023 FY",rev:574.78,gp:270.05,oi:36.85,ni:30.43,eps:2.9,ebitda:89.4,fcf:32.22,ocf:84.95},{d:"2024 FY",rev:637.96,gp:311.67,oi:68.59,ni:59.25,eps:5.53,ebitda:123.81,fcf:32.88,ocf:115.88},{d:"2025 FY",rev:716.92,gp:360.51,oi:79.97,ni:77.67,eps:7.17,ebitda:165.34,fcf:7.7,ocf:139.51}]},
-  "MSFT": {quarterly:[{d:"2024 Q3",rev:61.86,gp:43.35,oi:27.58,ni:21.94,eps:2.94,ebitda:33.55,fcf:20.96,ocf:31.92},{d:"2024 Q4",rev:64.73,gp:45.04,oi:27.93,ni:22.04,eps:2.95,ebitda:34.33,fcf:23.32,ocf:37.2},{d:"2025 Q1",rev:65.58,gp:45.49,oi:30.55,ni:24.67,eps:3.3,ebitda:38.23,fcf:19.26,ocf:34.18},{d:"2025 Q2",rev:69.63,gp:47.83,oi:31.65,ni:24.11,eps:3.23,ebitda:36.79,fcf:6.49,ocf:22.29},{d:"2025 Q3",rev:70.07,gp:48.15,oi:32.0,ni:25.82,eps:3.46,ebitda:40.71,fcf:20.3,ocf:37.04},{d:"2025 Q4",rev:76.44,gp:52.43,oi:34.32,ni:27.23,eps:3.65,ebitda:44.43,fcf:25.57,ocf:42.65},{d:"2026 Q1",rev:77.67,gp:53.63,oi:37.96,ni:27.75,eps:3.72,ebitda:48.06,fcf:25.66,ocf:45.06},{d:"2026 Q2",rev:81.27,gp:55.3,oi:38.27,ni:38.46,eps:5.16,ebitda:58.18,fcf:5.88,ocf:35.76}],annual:[{d:"2021 FY",rev:168.09,gp:115.86,oi:69.92,ni:61.27,eps:8.05,ebitda:85.13,fcf:56.12,ocf:76.74},{d:"2022 FY",rev:198.27,gp:135.62,oi:83.38,ni:72.74,eps:9.65,ebitda:100.24,fcf:65.15,ocf:89.03},{d:"2023 FY",rev:211.91,gp:146.05,oi:88.52,ni:72.36,eps:9.68,ebitda:105.14,fcf:59.48,ocf:87.58},{d:"2024 FY",rev:245.12,gp:171.01,oi:109.43,ni:88.14,eps:11.8,ebitda:133.01,fcf:74.07,ocf:118.55},{d:"2025 FY",rev:281.72,gp:193.89,oi:128.53,ni:101.83,eps:13.64,ebitda:160.16,fcf:71.61,ocf:136.16}]},
-  "META": {quarterly:[{d:"2024 Q1",rev:36.45,gp:29.82,oi:13.82,ni:12.37,eps:4.71,ebitda:17.68,fcf:12.85,ocf:19.25},{d:"2024 Q2",rev:39.07,gp:31.76,oi:14.85,ni:13.46,eps:5.16,ebitda:18.87,fcf:11.2,ocf:19.37},{d:"2024 Q3",rev:40.59,gp:33.21,oi:17.35,ni:15.69,eps:6.03,ebitda:22.06,fcf:16.47,ocf:24.72},{d:"2024 Q4",rev:48.38,gp:39.55,oi:23.36,ni:20.84,eps:8.02,ebitda:28.26,fcf:13.56,ocf:27.99},{d:"2025 Q1",rev:42.31,gp:34.74,oi:17.55,ni:16.64,eps:6.43,ebitda:22.52,fcf:11.09,ocf:24.03},{d:"2025 Q2",rev:47.52,gp:39.02,oi:20.44,ni:18.34,eps:7.14,ebitda:25.12,fcf:9.02,ocf:25.56},{d:"2025 Q3",rev:51.24,gp:42.04,oi:20.54,ni:2.71,eps:1.05,ebitda:26.85,fcf:11.17,ocf:30.0},{d:"2025 Q4",rev:59.89,gp:48.99,oi:24.75,ni:22.77,eps:8.87,ebitda:31.47,fcf:14.83,ocf:36.21}],annual:[{d:"2021 FY",rev:117.93,gp:95.28,oi:46.75,ni:39.37,eps:13.77,ebitda:55.27,fcf:39.12,ocf:57.68},{d:"2022 FY",rev:116.61,gp:91.36,oi:28.94,ni:23.2,eps:8.59,ebitda:37.69,fcf:19.04,ocf:50.48},{d:"2023 FY",rev:134.9,gp:108.94,oi:46.75,ni:39.1,eps:14.87,ebitda:59.05,fcf:43.85,ocf:71.11},{d:"2024 FY",rev:164.5,gp:134.34,oi:69.38,ni:62.36,eps:23.86,ebitda:86.88,fcf:54.07,ocf:91.33},{d:"2025 FY",rev:200.97,gp:164.79,oi:83.28,ni:60.46,eps:23.49,ebitda:104.55,fcf:46.11,ocf:115.8}]},
-  "AVGO": {quarterly:[{d:"2024 Q2",rev:12.49,gp:7.78,oi:2.96,ni:2.12,eps:0.44,ebitda:5.58,fcf:4.45,ocf:4.58},{d:"2024 Q3",rev:13.07,gp:8.36,oi:3.79,ni:-1.88,eps:-0.4,ebitda:6.39,fcf:4.79,ocf:4.96},{d:"2024 Q4",rev:14.05,gp:9.0,oi:4.63,ni:4.32,eps:0.9,ebitda:7.29,fcf:5.48,ocf:5.6},{d:"2025 Q1",rev:14.92,gp:10.14,oi:6.26,ni:5.5,eps:1.14,ebitda:6.26,fcf:6.01,ocf:6.11},{d:"2025 Q2",rev:15.0,gp:10.2,oi:5.83,ni:4.96,eps:1.03,ebitda:10.19,fcf:6.41,ocf:6.55},{d:"2025 Q3",rev:15.95,gp:10.7,oi:5.89,ni:4.14,eps:0.85,ebitda:8.03,fcf:7.02,ocf:7.17},{d:"2025 Q4",rev:18.02,gp:12.25,oi:7.51,ni:8.52,eps:1.74,ebitda:9.86,fcf:7.47,ocf:7.7},{d:"2026 Q1",rev:19.31,gp:12.66,oi:8.68,ni:7.35,eps:1.5,ebitda:10.83,fcf:8.01,ocf:8.26}],annual:[{d:"2021 FY",rev:27.45,gp:16.84,oi:8.52,ni:6.74,eps:1.5,ebitda:14.69,fcf:13.32,ocf:13.76},{d:"2022 FY",rev:33.2,gp:22.09,oi:14.22,ni:11.49,eps:2.65,ebitda:19.16,fcf:16.31,ocf:16.74},{d:"2023 FY",rev:35.82,gp:24.69,oi:16.21,ni:14.08,eps:3.3,ebitda:20.55,fcf:17.63,ocf:18.09},{d:"2024 FY",rev:51.57,gp:32.51,oi:13.46,ni:5.89,eps:1.23,ebitda:23.88,fcf:19.41,ocf:19.96},{d:"2025 FY",rev:63.89,gp:43.29,oi:25.48,ni:23.13,eps:4.77,ebitda:34.71,fcf:26.91,ocf:27.54}]},
-  "NVDA": {quarterly:[{d:"2025 Q1",rev:26.04,gp:20.41,oi:16.91,ni:14.88,eps:0.6,ebitda:17.75,fcf:14.98,ocf:15.35},{d:"2025 Q2",rev:30.04,gp:22.57,oi:18.64,ni:16.6,eps:0.67,ebitda:19.71,fcf:13.51,ocf:14.49},{d:"2025 Q3",rev:35.08,gp:26.16,oi:21.87,ni:19.31,eps:0.78,ebitda:22.86,fcf:16.81,ocf:17.63},{d:"2025 Q4",rev:39.33,gp:28.72,oi:24.03,ni:22.09,eps:0.89,ebitda:25.82,fcf:15.55,ocf:16.63},{d:"2026 Q1",rev:44.06,gp:26.67,oi:21.64,ni:18.77,eps:0.76,ebitda:22.58,fcf:26.19,ocf:27.41},{d:"2026 Q2",rev:46.74,gp:33.85,oi:28.44,ni:26.42,eps:1.08,ebitda:31.94,fcf:13.47,ocf:15.37},{d:"2026 Q3",rev:57.01,gp:41.85,oi:36.01,ni:31.91,eps:1.3,ebitda:38.75,fcf:22.11,ocf:23.75},{d:"2026 Q4",rev:68.13,gp:51.09,oi:44.3,ni:42.96,eps:1.76,ebitda:51.28,fcf:34.9,ocf:36.19}],annual:[{d:"2022 FY",rev:26.91,gp:17.48,oi:10.04,ni:9.75,eps:0.38,ebitda:11.35,fcf:8.13,ocf:9.11},{d:"2023 FY",rev:26.97,gp:15.36,oi:4.22,ni:4.37,eps:0.17,ebitda:5.99,fcf:3.81,ocf:5.64},{d:"2024 FY",rev:60.92,gp:44.3,oi:32.97,ni:29.76,eps:1.19,ebitda:35.58,fcf:27.02,ocf:28.09},{d:"2025 FY",rev:130.5,gp:97.86,oi:81.45,ni:72.88,eps:2.94,ebitda:86.14,fcf:60.85,ocf:64.09},{d:"2026 FY",rev:215.94,gp:153.46,oi:130.39,ni:120.07,eps:4.9,ebitda:144.55,fcf:96.68,ocf:102.72}]}
-};
-
-const SEGMENTS = {
-  "NVDA": {cols:["Data Center", "Gaming", "Automotive", "Compute And Networking", "Graphics"],data:[{d:"FY2024 Q2","Data Center":22.56,"Gaming":2.65,"Automotive":0.33,"Compute And Networking":22.68,"Graphics":3.37},{d:"FY2024 Q3","Data Center":26.27,"Gaming":2.88,"Automotive":0.35,"Compute And Networking":26.45,"Graphics":3.59},{d:"FY2024 Q4","Data Center":30.77,"Gaming":3.28,"Automotive":0.45,"Compute And Networking":31.04,"Graphics":4.05},{d:"FY2025 Q1","Data Center":35.58,"Gaming":2.54,"Automotive":0.57,"Compute And Networking":36.04,"Graphics":3.29},{d:"FY2025 Q2","Data Center":39.11,"Gaming":3.76,"Automotive":0.57,"Compute And Networking":39.59,"Graphics":4.47},{d:"FY2025 Q3","Data Center":41.1,"Gaming":4.29,"Automotive":0.59,"Compute And Networking":41.33,"Graphics":5.41},{d:"FY2025 Q4","Data Center":51.22,"Gaming":4.26,"Automotive":0.59,"Compute And Networking":50.91,"Graphics":6.1},{d:"FY2026 Q1","Data Center":62.31,"Gaming":3.73,"Automotive":0.6,"Compute And Networking":61.65,"Graphics":6.48}]},
-  "MSFT": {cols:["Productivity And Business Processes Post Fy2024", "Intelligent Cloud Post Fy2024", "More Personal Computing Post Fy2024", "Productivity And Business Processes Pre Fy2025", "Intelligent Cloud Pre Fy2025", "More Personal Computing Pre Fy2025", "Server Products And Cloud Services Post Fy2024", "Server Products And Cloud Services Pre Fy2025", "Microsoft 365 Commercial Products And Cloud Services", "Office Products And Cloud Services", "Gaming", "Search And News Advertising", "Microsoft 365 Consumer Products And Cloud Services", "Dynamics Products And Cloud Services", "Enterprise And Partner Services", "Microsoft Cloud", "Microsoft 365 Commercial Cloud Growth Gaap", "Microsoft 365 Commercial Cloud Growth Cc"],data:[{d:"FY2024 Q1","Productivity And Business Processes Post Fy2024":27.11,"Intelligent Cloud Post Fy2024":22.14,"More Personal Computing Post Fy2024":12.6,"Productivity And Business Processes Pre Fy2025":19.57,"Intelligent Cloud Pre Fy2025":26.71,"More Personal Computing Pre Fy2025":15.58,"Server Products And Cloud Services Post Fy2024":20.27,"Server Products And Cloud Services Pre Fy2025":24.83,"Microsoft 365 Commercial Products And Cloud Services":19.71,"Office Products And Cloud Services":13.91,"Gaming":5.45,"Search And News Advertising":3.06,"Microsoft 365 Consumer Products And Cloud Services":1.65,"Dynamics Products And Cloud Services":1.74,"Enterprise And Partner Services":1.86,"Microsoft Cloud":35.2,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2024 Q2","Productivity And Business Processes Post Fy2024":28.63,"Intelligent Cloud Post Fy2024":23.79,"More Personal Computing Post Fy2024":12.31,"Productivity And Business Processes Pre Fy2025":20.32,"Intelligent Cloud Pre Fy2025":28.52,"More Personal Computing Pre Fy2025":15.89,"Server Products And Cloud Services Post Fy2024":21.9,"Server Products And Cloud Services Pre Fy2025":26.63,"Microsoft 365 Commercial Products And Cloud Services":20.89,"Office Products And Cloud Services":14.35,"Gaming":5.02,"Search And News Advertising":3.06,"Microsoft 365 Consumer Products And Cloud Services":1.68,"Dynamics Products And Cloud Services":1.81,"Enterprise And Partner Services":1.87,"Microsoft Cloud":36.9,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2024 Q3","Productivity And Business Processes Post Fy2024":28.32,"Intelligent Cloud Post Fy2024":24.09,"More Personal Computing Post Fy2024":13.18,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":22.16,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":20.45,"Office Products And Cloud Services":0.0,"Gaming":5.62,"Search And News Advertising":3.23,"Microsoft 365 Consumer Products And Cloud Services":1.73,"Dynamics Products And Cloud Services":1.85,"Enterprise And Partner Services":1.93,"Microsoft Cloud":38.9,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2024 Q4","Productivity And Business Processes Post Fy2024":29.44,"Intelligent Cloud Post Fy2024":25.54,"More Personal Computing Post Fy2024":14.65,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":23.64,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":21.12,"Office Products And Cloud Services":0.0,"Gaming":6.58,"Search And News Advertising":3.56,"Microsoft 365 Consumer Products And Cloud Services":1.82,"Dynamics Products And Cloud Services":1.91,"Enterprise And Partner Services":1.89,"Microsoft Cloud":40.9,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2025 Q1","Productivity And Business Processes Post Fy2024":29.94,"Intelligent Cloud Post Fy2024":26.75,"More Personal Computing Post Fy2024":13.37,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":24.76,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":21.88,"Office Products And Cloud Services":0.0,"Gaming":5.72,"Search And News Advertising":3.5,"Microsoft 365 Consumer Products And Cloud Services":1.82,"Dynamics Products And Cloud Services":1.93,"Enterprise And Partner Services":1.95,"Microsoft Cloud":42.4,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2025 Q2","Productivity And Business Processes Post Fy2024":33.11,"Intelligent Cloud Post Fy2024":29.88,"More Personal Computing Post Fy2024":13.45,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":27.88,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":24.32,"Office Products And Cloud Services":0.0,"Gaming":5.53,"Search And News Advertising":3.59,"Microsoft 365 Consumer Products And Cloud Services":2.04,"Dynamics Products And Cloud Services":2.14,"Enterprise And Partner Services":1.99,"Microsoft Cloud":46.7,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2025 Q3","Productivity And Business Processes Post Fy2024":33.02,"Intelligent Cloud Post Fy2024":30.9,"More Personal Computing Post Fy2024":13.76,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":28.87,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":23.97,"Office Products And Cloud Services":0.0,"Gaming":5.51,"Search And News Advertising":3.7,"Microsoft 365 Consumer Products And Cloud Services":2.2,"Dynamics Products And Cloud Services":2.14,"Enterprise And Partner Services":2.02,"Microsoft Cloud":49.1,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0},{d:"FY2025 Q4","Productivity And Business Processes Post Fy2024":34.12,"Intelligent Cloud Post Fy2024":32.91,"More Personal Computing Post Fy2024":14.25,"Productivity And Business Processes Pre Fy2025":0.0,"Intelligent Cloud Pre Fy2025":0.0,"More Personal Computing Pre Fy2025":0.0,"Server Products And Cloud Services Post Fy2024":30.86,"Server Products And Cloud Services Pre Fy2025":0.0,"Microsoft 365 Commercial Products And Cloud Services":24.52,"Office Products And Cloud Services":0.0,"Gaming":5.96,"Search And News Advertising":3.81,"Microsoft 365 Consumer Products And Cloud Services":2.31,"Dynamics Products And Cloud Services":2.2,"Enterprise And Partner Services":2.04,"Microsoft Cloud":51.5,"Microsoft 365 Commercial Cloud Growth Gaap":0.0,"Microsoft 365 Commercial Cloud Growth Cc":0.0}]},
-  "META": {cols:["United States And Canada Advertising", "Europe Advertising", "Asia Pacific Advertising", "Rest Of World Advertising", "Advertising", "Family Of Apps", "Reality Labs"],data:[{d:"FY2024 Q1","United States And Canada Advertising":15.45,"Europe Advertising":8.33,"Asia Pacific Advertising":7.34,"Rest Of World Advertising":4.52,"Advertising":35.63,"Family Of Apps":36.02,"Reality Labs":0.44},{d:"FY2024 Q2","United States And Canada Advertising":16.59,"Europe Advertising":9.13,"Asia Pacific Advertising":7.72,"Rest Of World Advertising":4.88,"Advertising":38.33,"Family Of Apps":38.72,"Reality Labs":0.35},{d:"FY2024 Q3","United States And Canada Advertising":17.39,"Europe Advertising":9.36,"Asia Pacific Advertising":8.05,"Rest Of World Advertising":5.09,"Advertising":39.88,"Family Of Apps":40.32,"Reality Labs":0.27},{d:"FY2024 Q4","United States And Canada Advertising":20.98,"Europe Advertising":11.15,"Asia Pacific Advertising":9.01,"Rest Of World Advertising":5.63,"Advertising":46.78,"Family Of Apps":47.3,"Reality Labs":1.08},{d:"FY2025 Q1","United States And Canada Advertising":18.26,"Europe Advertising":9.53,"Asia Pacific Advertising":8.22,"Rest Of World Advertising":5.38,"Advertising":41.39,"Family Of Apps":41.9,"Reality Labs":0.41},{d:"FY2025 Q2","United States And Canada Advertising":20.05,"Europe Advertising":11.37,"Asia Pacific Advertising":9.15,"Rest Of World Advertising":6.0,"Advertising":46.56,"Family Of Apps":47.15,"Reality Labs":0.37},{d:"FY2025 Q3","United States And Canada Advertising":21.33,"Europe Advertising":12.07,"Asia Pacific Advertising":10.02,"Rest Of World Advertising":6.66,"Advertising":50.08,"Family Of Apps":50.77,"Reality Labs":0.47},{d:"FY2025 Q4","United States And Canada Advertising":25.64,"Europe Advertising":14.2,"Asia Pacific Advertising":10.89,"Rest Of World Advertising":7.4,"Advertising":58.14,"Family Of Apps":58.94,"Reality Labs":0.95}]},
-  "AMZN": {cols:["Online Stores", "Third Party 3P Seller Services", "Advertising Services", "Subscription Services", "Aws"],data:[{d:"FY2024 Q1","Online Stores":54.67,"Third Party 3P Seller Services":34.6,"Advertising Services":11.82,"Subscription Services":10.72,"Aws":25.04},{d:"FY2024 Q2","Online Stores":55.39,"Third Party 3P Seller Services":36.2,"Advertising Services":12.77,"Subscription Services":10.87,"Aws":26.28},{d:"FY2024 Q3","Online Stores":61.41,"Third Party 3P Seller Services":37.86,"Advertising Services":14.33,"Subscription Services":11.28,"Aws":27.45},{d:"FY2024 Q4","Online Stores":75.56,"Third Party 3P Seller Services":47.48,"Advertising Services":17.29,"Subscription Services":11.51,"Aws":28.79},{d:"FY2025 Q1","Online Stores":57.41,"Third Party 3P Seller Services":36.51,"Advertising Services":13.92,"Subscription Services":11.71,"Aws":29.27},{d:"FY2025 Q2","Online Stores":61.48,"Third Party 3P Seller Services":40.35,"Advertising Services":15.69,"Subscription Services":12.21,"Aws":30.87},{d:"FY2025 Q3","Online Stores":67.41,"Third Party 3P Seller Services":42.49,"Advertising Services":17.7,"Subscription Services":12.57,"Aws":33.01},{d:"FY2025 Q4","Online Stores":82.99,"Third Party 3P Seller Services":52.82,"Advertising Services":21.32,"Subscription Services":13.12,"Aws":35.58}]},
-  "TSLA": {cols:["Automotive Sales", "Automotive Regulatory Credits", "Automotive Leasing", "Total Automotive", "Energy Generation And Storage Segment", "Services And Other"],data:[{d:"FY2024 Q1","Automotive Sales":16.46,"Automotive Regulatory Credits":0.44,"Automotive Leasing":0.48,"Total Automotive":17.38,"Energy Generation And Storage Segment":1.64,"Services And Other":2.29},{d:"FY2024 Q2","Automotive Sales":18.53,"Automotive Regulatory Credits":0.89,"Automotive Leasing":0.46,"Total Automotive":19.88,"Energy Generation And Storage Segment":3.01,"Services And Other":2.61},{d:"FY2024 Q3","Automotive Sales":18.83,"Automotive Regulatory Credits":0.74,"Automotive Leasing":0.45,"Total Automotive":20.02,"Energy Generation And Storage Segment":2.38,"Services And Other":2.79},{d:"FY2024 Q4","Automotive Sales":18.66,"Automotive Regulatory Credits":0.69,"Automotive Leasing":0.45,"Total Automotive":19.8,"Energy Generation And Storage Segment":3.06,"Services And Other":2.85},{d:"FY2025 Q1","Automotive Sales":12.93,"Automotive Regulatory Credits":0.59,"Automotive Leasing":0.45,"Total Automotive":13.97,"Energy Generation And Storage Segment":2.73,"Services And Other":2.64},{d:"FY2025 Q2","Automotive Sales":15.79,"Automotive Regulatory Credits":0.44,"Automotive Leasing":0.43,"Total Automotive":16.66,"Energy Generation And Storage Segment":2.79,"Services And Other":3.05},{d:"FY2025 Q3","Automotive Sales":20.36,"Automotive Regulatory Credits":0.42,"Automotive Leasing":0.43,"Total Automotive":21.2,"Energy Generation And Storage Segment":3.42,"Services And Other":3.48},{d:"FY2025 Q4","Automotive Sales":16.75,"Automotive Regulatory Credits":0.54,"Automotive Leasing":0.4,"Total Automotive":17.69,"Energy Generation And Storage Segment":3.84,"Services And Other":3.37}]},
-  "AVGO": {cols:["Semiconductor Solutions", "Infrastructure Software", "Subscriptions And Services"],data:[{d:"FY2024 Q2","Semiconductor Solutions":7.2,"Infrastructure Software":5.29,"Subscriptions And Services":5.29},{d:"FY2024 Q3","Semiconductor Solutions":7.27,"Infrastructure Software":5.8,"Subscriptions And Services":5.63},{d:"FY2024 Q4","Semiconductor Solutions":8.23,"Infrastructure Software":5.82,"Subscriptions And Services":1.14},{d:"FY2025 Q1","Semiconductor Solutions":8.21,"Infrastructure Software":6.7,"Subscriptions And Services":4.77},{d:"FY2025 Q2","Semiconductor Solutions":8.41,"Infrastructure Software":6.6,"Subscriptions And Services":6.5},{d:"FY2025 Q3","Semiconductor Solutions":9.17,"Infrastructure Software":6.79,"Subscriptions And Services":6.7},{d:"FY2025 Q4","Semiconductor Solutions":11.07,"Infrastructure Software":6.94,"Subscriptions And Services":-0.9},{d:"FY2026 Q1","Semiconductor Solutions":12.52,"Infrastructure Software":6.8,"Subscriptions And Services":5.18}]},
-  "AMD": {cols:["Computing And Graphics", "Enterprise Embedded And Semi Custom", "Data Center", "Client", "Gaming", "Total Client And Gaming", "Embedded"],data:[{d:"FY2024 Q1","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":2.34,"Client":1.37,"Gaming":0.92,"Total Client And Gaming":2.29,"Embedded":0.85},{d:"FY2024 Q2","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":2.83,"Client":1.49,"Gaming":0.65,"Total Client And Gaming":2.14,"Embedded":0.86},{d:"FY2024 Q3","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":3.55,"Client":1.88,"Gaming":0.46,"Total Client And Gaming":2.34,"Embedded":0.93},{d:"FY2024 Q4","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":3.86,"Client":2.31,"Gaming":0.56,"Total Client And Gaming":2.88,"Embedded":0.92},{d:"FY2025 Q1","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":3.67,"Client":2.29,"Gaming":0.65,"Total Client And Gaming":2.94,"Embedded":0.82},{d:"FY2025 Q2","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":3.24,"Client":2.5,"Gaming":1.12,"Total Client And Gaming":3.62,"Embedded":0.82},{d:"FY2025 Q3","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":4.34,"Client":2.75,"Gaming":1.3,"Total Client And Gaming":4.05,"Embedded":0.86},{d:"FY2025 Q4","Computing And Graphics":0.0,"Enterprise Embedded And Semi Custom":0.0,"Data Center":5.38,"Client":3.1,"Gaming":0.84,"Total Client And Gaming":3.94,"Embedded":0.95}]},
-  "GOOGL": {cols:["Google Search And Other", "Youtube Ads", "Google Subscriptions Platforms And Devices", "Google Cloud", "Emea", "Apac"],data:[{d:"FY2024 Q1","Google Search And Other":46.16,"Youtube Ads":8.09,"Google Subscriptions Platforms And Devices":8.74,"Google Cloud":9.57,"Emea":23.79,"Apac":13.29},{d:"FY2024 Q2","Google Search And Other":48.51,"Youtube Ads":8.66,"Google Subscriptions Platforms And Devices":9.31,"Google Cloud":10.35,"Emea":24.68,"Apac":13.82},{d:"FY2024 Q3","Google Search And Other":49.38,"Youtube Ads":8.92,"Google Subscriptions Platforms And Devices":10.66,"Google Cloud":11.35,"Emea":25.47,"Apac":14.55},{d:"FY2024 Q4","Google Search And Other":54.03,"Youtube Ads":10.47,"Google Subscriptions Platforms And Devices":11.63,"Google Cloud":11.96,"Emea":28.18,"Apac":15.16},{d:"FY2025 Q1","Google Search And Other":50.7,"Youtube Ads":8.93,"Google Subscriptions Platforms And Devices":10.38,"Google Cloud":12.26,"Emea":25.92,"Apac":14.85},{d:"FY2025 Q2","Google Search And Other":54.19,"Youtube Ads":9.8,"Google Subscriptions Platforms And Devices":11.2,"Google Cloud":13.62,"Emea":28.26,"Apac":16.48},{d:"FY2025 Q3","Google Search And Other":56.57,"Youtube Ads":10.26,"Google Subscriptions Platforms And Devices":12.87,"Google Cloud":15.16,"Emea":29.91,"Apac":17.82},{d:"FY2025 Q4","Google Search And Other":63.07,"Youtube Ads":11.38,"Google Subscriptions Platforms And Devices":13.58,"Google Cloud":17.66,"Emea":33.06,"Apac":18.53}]}
-};
-
-const SENTIMENT = {};
-
-</script>
-<script>
-const SECTORS = {
-  NVDA:'Semis', AVGO:'Semis', AMD:'Semis', SMCI:'Semis', CDNS:'Semis', MRVL:'Semis', TSM:'Semis', CRDO:'Semis',
-  NBIS:'AI/Infra', PLTR:'AI/Infra',
-  AMZN:'Cloud', MSFT:'Cloud', SNOW:'Cloud', NET:'Cloud', ORCL:'Cloud',
-  CRM:'Software', NOW:'Software', ADSK:'Software', INTU:'Software', DDOG:'Software', HUBS:'Software', IGV:'Software',
-  CRWD:'Cyber', FTNT:'Cyber', ZS:'Cyber', PANW:'Cyber',
-  APP:'Adtech', META:'Adtech',
-  TSLA:'Auto/Robots',
-  SPGI:'Financials', MCO:'Financials', SOFI:'Financials', TOST:'Financials', GS:'Financials', GRNY:'Financials',
-  NFLX:'Ecom', SHOP:'Ecom',
-  LMT:'Defense',
-  EETH:'Crypto', COIN:'Crypto',
-};
-
-const watchlistData = Object.keys(QUOTES_DATA).map(ticker => {
-  const q = QUOTES_DATA[ticker];
-  const ma200 = MA200_DATA[ticker] || q.price;
-  const ohlcv = OHLCV_DATA[ticker] || {};
-  const est = ESTIMATES_DATA[ticker] || {};
-  const yearHigh = ohlcv.yearHigh || q.yearHigh || q.price;
-  const vs200d = ma200 > 0 ? ((q.price - ma200) / ma200 * 100) : 0;
-  const fromHigh = yearHigh > 0 ? ((q.price - yearHigh) / yearHigh * 100) : 0;
-  const fwdPE = (est.forwardEps && est.forwardEps > 0) ? q.price / est.forwardEps : null;
-  let signal = 'Neutral';
-  if (vs200d > 0 && fromHigh > -15) signal = 'Bullish';
-  else if (vs200d < 0 && fromHigh < -25) signal = 'Bearish';
-
-  return {
-    ticker,
-    name: q.name,
-    price: q.price,
-    chg: q.chg,
-    pe: q.pe || null,
-    fwdPE: fwdPE,
-    fromHigh: fromHigh,
-    vs200d: vs200d,
-    signal,
-    sector: SECTORS[ticker] || 'Other',
-    yearHigh,
-    ma200,
-  };
-});
-const liveQuotes = {};
+    const liveQuotes = {};
 let ws = null;
 let wsReconnectTimer = null;
 const wsSubscriptions = new Set();
@@ -983,53 +839,22 @@ function getActiveTickerSet() {
   return new Set(def);
 }
 function subscribeNewTicker(ticker) {
-  if (ws && ws.readyState === 1 && !wsSubscriptions.has(ticker)) {
-    ws.send(JSON.stringify({type: 'subscribe', symbol: ticker}));
-    wsSubscriptions.add(ticker);
-  }
-  if (!watchlistData.find(w => w.ticker === ticker)) {
-    const q = QUOTES_DATA[ticker];
-    if (q) {
-      const ma200 = MA200_DATA[ticker] || q.price;
-      const ohlcv = OHLCV_DATA[ticker] || {};
-      const est = ESTIMATES_DATA[ticker] || {};
-      const yearHigh = ohlcv.yearHigh || q.yearHigh || q.price;
-      const vs200d = ma200 > 0 ? ((q.price - ma200) / ma200 * 100) : 0;
-      const fromHigh = yearHigh > 0 ? ((q.price - yearHigh) / yearHigh * 100) : 0;
-      const fwdPE = (est.forwardEps && est.forwardEps > 0) ? q.price / est.forwardEps : null;
-      let signal = 'Neutral';
-      if (vs200d > 0 && fromHigh > -15) signal = 'Bullish';
-      else if (vs200d < 0 && fromHigh < -25) signal = 'Bearish';
-      watchlistData.push({ ticker, name: q.name, price: q.price, chg: q.chg, pe: q.pe || null, fwdPE, fromHigh, vs200d, signal, sector: SECTORS[ticker] || 'Other', yearHigh, ma200 });
-    } else {
-      watchlistData.push({ ticker, name: ticker, price: 0, chg: 0, pe: null, fwdPE: null, fromHigh: 0, vs200d: 0, signal: 'Neutral', sector: 'Other', yearHigh: 0, ma200: 0 });
-                // Fetch live quote for tickers not in QUOTES_DATA
-          (async () => {
-            try {
-              const [qResp, pResp] = await Promise.all([
-                fetch(FH('quote?symbol='+ticker)),
-                fetch(FH('stock/profile2?symbol='+ticker))
-              ]);
-              const qData = await qResp.json();
-              const pData = await pResp.json();
-              const entry = watchlistData.find(w => w.ticker === ticker);
-              if (entry && qData && qData.c) {
-                entry.price = qData.c;
-                entry.chg = qData.dp || 0;
-                entry.name = pData.name || ticker;
-                entry.yearHigh = qData.h || qData.c;
-                const prevClose = qData.pc || qData.c;
-                if (prevClose > 0) entry.chg = ((qData.c - prevClose) / prevClose * 100);
-                QUOTES_DATA[ticker] = { name: pData.name || ticker, price: qData.c, pe: 0, eps: 0, chg: entry.chg };
-                renderWatchlist();
-              }
-            } catch(e) { console.log('Quote fetch failed for', ticker, e); }
-          })();
+      if (ws && ws.readyState === 1 && !wsSubscriptions.has(ticker)) {
+        ws.send(JSON.stringify({type: 'subscribe', symbol: ticker}));
+        wsSubscriptions.add(ticker);
+      }
+      if (!watchlistData.find(w => w.ticker === ticker)) {
+        watchlistData.push({ticker, name:ticker, price:0, chg:0, pe:0, eps:0, fwdPe:0, signal:'Neutral', sector:'Other', yearHigh:0, ma200:0});
+        fetchTickerData(ticker).then(data => {
+          if (data) {
+            const entry = watchlistData.find(w => w.ticker === ticker);
+            if (entry) Object.assign(entry, data);
+            renderWatchlist();
+          }
+        });
+      }
     }
-    subscribeNewTicker(ticker);
-  }
-}
-function updateTickerInputBar() {
+    function updateTickerInputBar() {
   const bar = document.getElementById('wlTickerInputBar');
   if (bar) bar.style.display = (watchlistDefs[activeWatchlist] != null) ? 'flex' : 'none';
 }
@@ -1598,53 +1423,26 @@ function renderInsiderBuys(buys) {
     async function fetchMacroEvents() {
       const el = document.getElementById('macroEventsList');
       if (!el) return;
-      const today = new Date().toISOString().slice(0, 10);
-      // Known upcoming US macro events - update quarterly
-      const knownEvents = [
-        {date:'2026-03-25',event:'Consumer Confidence',impact:2},
-        {date:'2026-03-26',event:'New Home Sales',impact:2},
-        {date:'2026-03-27',event:'GDP Q4 Final',impact:3},
-        {date:'2026-03-27',event:'Initial Jobless Claims',impact:2},
-        {date:'2026-03-28',event:'Core PCE (Feb)',impact:3},
-        {date:'2026-03-28',event:'Personal Income & Spending',impact:2},
-        {date:'2026-04-01',event:'ISM Manufacturing PMI',impact:3},
-        {date:'2026-04-02',event:'JOLTS Job Openings',impact:2},
-        {date:'2026-04-03',event:'ISM Services PMI',impact:3},
-        {date:'2026-04-03',event:'Initial Jobless Claims',impact:2},
-        {date:'2026-04-04',event:'Non-Farm Payrolls',impact:3},
-        {date:'2026-04-04',event:'Unemployment Rate',impact:3},
-        {date:'2026-04-10',event:'CPI (Mar)',impact:3},
-        {date:'2026-04-11',event:'PPI (Mar)',impact:2},
-        {date:'2026-04-14',event:'Retail Sales (Mar)',impact:3},
-        {date:'2026-04-16',event:'Housing Starts',impact:2},
-        {date:'2026-04-17',event:'Initial Jobless Claims',impact:2},
-        {date:'2026-04-17',event:'Philadelphia Fed Index',impact:2},
-        {date:'2026-04-24',event:'Durable Goods Orders',impact:2},
-        {date:'2026-04-29',event:'Consumer Confidence',impact:2},
-        {date:'2026-04-30',event:'GDP Q1 Advance',impact:3},
-        {date:'2026-05-01',event:'ISM Manufacturing PMI',impact:3},
-        {date:'2026-05-01',event:'ADP Employment',impact:2},
-        {date:'2026-05-06',event:'FOMC Decision',impact:3},
-        {date:'2026-05-08',event:'Non-Farm Payrolls',impact:3},
-        {date:'2026-05-12',event:'CPI (Apr)',impact:3},
-        {date:'2026-05-15',event:'Retail Sales (Apr)',impact:3}
-      ];
-      const events = knownEvents.filter(e => e.date >= today).slice(0, 15);
-      if (events.length) {
-        el.innerHTML = events.map(e => {
-          const impact = e.impact >= 3 ? 'high' : e.impact >= 2 ? 'med' : 'low';
-          const impactLabel = e.impact >= 3 ? 'HIGH' : e.impact >= 2 ? 'MED' : 'LOW';
-          return `<div class="event-row">
-            <span class="event-date">${fmtDate(e.date)}</span>
-            <span class="event-name">${e.event}</span>
-            <span class="impact-badge ${impact}">${impactLabel}</span>
-          </div>`;
-        }).join('');
-      } else {
-        el.innerHTML = '<div style="color:var(--text-muted);font-size:var(--text-xs);padding:8px">No upcoming events scheduled</div>';
+      const today = new Date().toISOString().slice(0,10);
+      const end = new Date(Date.now()+30*86400000).toISOString().slice(0,10);
+      try {
+        const resp = await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent('https://api.tradingeconomics.com/calendar/country/united%20states/'+today+'/'+end+'?c=guest:guest&f=json'));
+        if (!resp.ok) throw new Error('API error');
+        const data = await resp.json();
+        const events = (Array.isArray(data)?data:[]).filter(e => e.Date && e.Date.slice(0,10) >= today && e.Category).slice(0,15);
+        if (events.length) {
+          el.innerHTML = events.map(e => {
+            const impact = e.Importance >= 3 ? 'high' : e.Importance >= 2 ? 'med' : 'low';
+            const impactLabel = e.Importance >= 3 ? 'HIGH' : e.Importance >= 2 ? 'MED' : 'LOW';
+            return `<div class="event-row"><span class="event-date">${fmtDate(e.Date.slice(0,10))}</span><span class="event-name">${e.Category}</span><span class="impact-badge ${impact}">${impactLabel}</span></div>`;
+          }).join('');
+        } else { el.innerHTML = '<div style="color:var(--text-muted);padding:8px">No upcoming events</div>'; }
+      } catch(e) {
+        console.log('Macro events error:', e);
+        el.innerHTML = '<div style="color:var(--text-muted);padding:8px">Unable to load events</div>';
       }
     }
-async function fetchDailyBrief() {
+    fetchDailyBrief() {
   const briefEl = document.getElementById('briefList');
   const dateEl = document.getElementById('briefDate');
   if (!briefEl) return;
@@ -1820,12 +1618,8 @@ document.querySelectorAll('#chartMetricTabs .metric-tab').forEach(tab => {
   });
 });
 async function init() {
-  renderWatchlist();
-        // Subscribe custom tickers from watchlistDefs not in QUOTES_DATA
-      Object.values(watchlistDefs).flat().forEach(t => {
-        if (t && !QUOTES_DATA[t]) subscribeNewTicker(t);
-      });
-            setTimeout(renderWatchlist, 500); // Re-render after custom tickers added
+      renderWatchlist();
+      loadWatchlistLive(); // Fetch all live data for watchlist tickers
   renderStockAnalysis();
   renderChartBuilder();
   connectWebSocket();
@@ -1986,63 +1780,92 @@ initSupabase();
 
 // === LIVE DATA PATCHES (auto-refresh) ===
 async function fetchFedWatch() {
-  var el = document.getElementById('fedwatchGrid');
-  if (!el) return;
-  var today = new Date().toISOString().slice(0,10);
-  var meetings = [
-    {date:'2026-05-06',label:'May 6'},{date:'2026-06-17',label:'Jun 17'},
-    {date:'2026-07-29',label:'Jul 29'},{date:'2026-09-16',label:'Sep 16'},
-    {date:'2026-10-28',label:'Oct 28'},{date:'2026-12-16',label:'Dec 16'}
-  ].filter(function(m){return m.date >= today;});
-  if (!meetings.length) { el.innerHTML = '<div style="color:var(--text-muted)">No upcoming FOMC meetings</div>'; return; }
-  el.innerHTML = meetings.map(function(m){
-    return '<div class="fedwatch-card"><div class="fedwatch-date">'+m.label+'</div><div class="fedwatch-prob" style="color:var(--text-muted)">---</div><div class="fedwatch-label">Awaiting CME data</div></div>';
-  }).join('');
-}
-
-async function fetchDividendCalendar() {
-  var el = document.getElementById('divCalRows');
-  if (!el) return;
-  var today = new Date().toISOString().slice(0,10);
-  var end = new Date(Date.now()+30*86400000).toISOString().slice(0,10);
-  var tickers = getActiveTickerArray();
-  var divs = [];
-  for (var i = 0; i < Math.min(tickers.length, 20); i++) {
-    try {
-      var resp = await fetch(FH('stock/dividend?symbol='+tickers[i]+'&from='+today+'&to='+end));
-      if (resp.status === 429) { await sleep(2000); i--; continue; }
-      var data = await resp.json();
-      if (Array.isArray(data)) {
-        data.filter(function(d){return d.date >= today;}).forEach(function(d){
-          divs.push({ticker:tickers[i], amount:d.amount||0, date:d.date, freq:d.freq||'Quarterly'});
+      var el = document.getElementById('fedwatchGrid');
+      if (!el) return;
+      try {
+        var resp = await fetch('https://api.allorigins.win/raw?url='+encodeURIComponent('https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm'));
+        var html = await resp.text();
+        var parser = new DOMParser();
+        var doc = parser.parseFromString(html, 'text/html');
+        var today = new Date().toISOString().slice(0,10);
+        var meetings = [];
+        doc.querySelectorAll('.fomc-meeting__date').forEach(function(d) {
+          var txt = d.textContent.trim();
+          var parts = txt.match(/(\w+)\s+(\d+)(?:-(\d+))?,\s*(\d{4})/);
+          if (parts) {
+            var dt = new Date(parts[4]+'-'+('JanFebMarAprMayJunJulAugSepOctNovDec'.indexOf(parts[1].slice(0,3))/3+1).toString().padStart(2,'0')+'-'+parts[parts[3]||parts[2]].padStart(2,'0'));
+            var iso = dt.toISOString().slice(0,10);
+            if (iso >= today) meetings.push({date:iso, label:parts[1].slice(0,3)+' '+parts[parts[3]||parts[2]]});
+          }
         });
+        if (!meetings.length) {
+          var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+          doc.querySelectorAll('.panel-default').forEach(function(p){
+            var h = p.querySelector('.panel-heading');
+            if (!h) return;
+            p.querySelectorAll('.fomc-meeting').forEach(function(m){
+              var dateEl = m.querySelector('.fomc-meeting__date');
+              if (!dateEl) return;
+              var t = dateEl.textContent.trim();
+              if (t) meetings.push({date:'upcoming', label:t.replace(/\*/g,'')});
+            });
+          });
+        }
+        meetings = meetings.slice(0,6);
+        if (meetings.length) {
+          el.innerHTML = meetings.map(function(m){
+            return '<div class="fedwatch-card"><div class="fedwatch-date">'+m.label+'</div><div class="fedwatch-prob" style="color:var(--accent)">--</div><div class="fedwatch-label">FOMC Meeting</div></div>';
+          }).join('');
+        } else {
+          el.innerHTML = '<div style="color:var(--text-muted)">Unable to load FOMC dates</div>';
+        }
+      } catch(e) {
+        console.log('FedWatch error:', e);
+        el.innerHTML = '<div style="color:var(--text-muted)">Unable to load FOMC data</div>';
       }
-    } catch(e) {}
-    if (i < tickers.length-1) await sleep(500);
-  }
-  divs.sort(function(a,b){return a.date.localeCompare(b.date);});
-  if (!divs.length) { el.innerHTML = '<div style="color:var(--text-muted);padding:8px">No upcoming dividends</div>'; return; }
-  el.innerHTML = divs.slice(0,10).map(function(d){
-    return '<div class="div-calendar-row"><span class="div-ticker">'+d.ticker+'</span><span style="color:var(--text-muted);font-size:var(--text-xs)">'+d.freq+'</span><span class="div-amount">$'+d.amount.toFixed(2)+'</span><span class="div-date">'+fmtDate(d.date)+'</span></div>';
-  }).join('');
-}
-
-// Move Daily Brief below watchlist
-(function(){
-  var titles = document.querySelectorAll('.panel-title');
-  var briefPanel = null;
-  titles.forEach(function(t){ if(t.textContent.trim()==='Daily Brief') briefPanel = t.closest('.panel'); });
-  if (!briefPanel) return;
-  var wlPanel = document.querySelector('.panel.full-width');
-  if (!wlPanel) return;
-  var parent = wlPanel.parentNode;
-  parent.insertBefore(briefPanel, wlPanel.nextSibling);
-  briefPanel.classList.add('full-width');
-  briefPanel.style.gridColumn = '1 / -1';
-})();
-
-setTimeout(fetchFedWatch, 5000);
-setTimeout(fetchDividendCalendar, 10000);
+    }
+    async function fetchDividendCalendar() {
+      var el = document.getElementById('divCalRows');
+      if (!el) return;
+      var today = new Date().toISOString().slice(0,10);
+      var end = new Date(Date.now()+30*86400000).toISOString().slice(0,10);
+      var tickers = Object.values(watchlistDefs).flat().filter(Boolean);
+      if (!tickers.length) { el.innerHTML = '<div style="color:var(--text-muted);padding:8px">Add tickers to watchlist to see dividends</div>'; return; }
+      var divs = [];
+      for (var i = 0; i < Math.min(tickers.length, 20); i++) {
+        try {
+          var resp = await fetch(FH('stock/dividend?symbol='+tickers[i]+'&from='+today+'&to='+end));
+          if (resp.status === 429) { await sleep(2000); i--; continue; }
+          var data = await resp.json();
+          if (Array.isArray(data)) {
+            data.filter(function(d){return d.date >= today;}).forEach(function(d){
+              divs.push({ticker:tickers[i], amount:d.amount||0, date:d.date, freq:d.freq||'Quarterly'});
+            });
+          }
+        } catch(e) {}
+        if (i < tickers.length-1) await sleep(500);
+      }
+      divs.sort(function(a,b){return a.date.localeCompare(b.date);});
+      if (!divs.length) { el.innerHTML = '<div style="color:var(--text-muted);padding:8px">No upcoming dividends</div>'; return; }
+      el.innerHTML = divs.slice(0,10).map(function(d){
+        return '<div class="div-calendar-row"><span class="div-ticker">'+d.ticker+'</span><span style="color:var(--text-muted);font-size:var(--text-xs)">'+d.freq+'</span><span class="div-amount">$'+d.amount.toFixed(2)+'</span><span class="div-date">'+fmtDate(d.date)+'</span></div>';
+      }).join('');
+    }
+    // Move Daily Brief below watchlist
+    (function(){
+      var titles = document.querySelectorAll('.panel-title');
+      var briefPanel = null;
+      titles.forEach(function(t){ if(t.textContent.trim()==='Daily Brief') briefPanel = t.closest('.panel'); });
+      if (!briefPanel) return;
+      var wlPanel = document.querySelector('.panel.full-width');
+      if (!wlPanel) return;
+      var parent = wlPanel.parentNode;
+      parent.insertBefore(briefPanel, wlPanel.nextSibling);
+      briefPanel.classList.add('full-width');
+      briefPanel.style.gridColumn = '1 / -1';
+    })();
+    setTimeout(fetchFedWatch, 3000);
+    setTimeout(fetchDividendCalendar, 10000);
 setInterval(fetchDividendCalendar, 600000);
 </script>
 </body>
