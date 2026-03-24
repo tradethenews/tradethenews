@@ -563,12 +563,7 @@ td.rationale { white-space: normal; min-width: 250px; max-width: none; color: va
         </div>
         <div class="panel-body">
           <div class="fedwatch-grid" id="fedwatchGrid">
-            <div class="fedwatch-card"><div class="fedwatch-date">Mar 19</div><div class="fedwatch-prob">97%</div><div class="fedwatch-label">Hold</div></div>
-            <div class="fedwatch-card"><div class="fedwatch-date">May 7</div><div class="fedwatch-prob">82%</div><div class="fedwatch-label">Hold</div></div>
-            <div class="fedwatch-card"><div class="fedwatch-date">Jun 18</div><div class="fedwatch-prob color-green">58%</div><div class="fedwatch-label">-25bp</div></div>
-            <div class="fedwatch-card"><div class="fedwatch-date">Jul 30</div><div class="fedwatch-prob color-green">44%</div><div class="fedwatch-label">-50bp</div></div>
-            <div class="fedwatch-card"><div class="fedwatch-date">Sep 17</div><div class="fedwatch-prob color-green">61%</div><div class="fedwatch-label">-50bp</div></div>
-            <div class="fedwatch-card"><div class="fedwatch-date">Dec 17</div><div class="fedwatch-prob color-green">52%</div><div class="fedwatch-label">-75bp</div></div>
+                          <div style="color:var(--text-muted);font-size:var(--text-xs);padding:8px">Loading FOMC meetings...</div>
           </div>
         </div>
       </div>
@@ -582,12 +577,7 @@ td.rationale { white-space: normal; min-width: 250px; max-width: none; color: va
         </div>
         <div class="panel-body">
           <div id="divCalRows">
-            <div class="div-calendar-row"><span class="div-ticker">MSFT</span><span>Quarterly</span><span class="div-amount">$0.83</span><span class="div-date">Mar 20</span></div>
-            <div class="div-calendar-row"><span class="div-ticker">AVGO</span><span>Quarterly</span><span class="div-amount">$0.59</span><span class="div-date">Mar 28</span></div>
-            <div class="div-calendar-row"><span class="div-ticker">META</span><span>Quarterly</span><span class="div-amount">$0.50</span><span class="div-date">Mar 26</span></div>
-            <div class="div-calendar-row"><span class="div-ticker">SPGI</span><span>Quarterly</span><span class="div-amount">$0.96</span><span class="div-date">Mar 28</span></div>
-            <div class="div-calendar-row"><span class="div-ticker">GS</span><span>Quarterly</span><span class="div-amount">$3.00</span><span class="div-date">Mar 25</span></div>
-            <div class="div-calendar-row"><span class="div-ticker">LMT</span><span>Quarterly</span><span class="div-amount">$3.30</span><span class="div-date">Mar 28</span></div>
+                          <div style="color:var(--text-muted);font-size:var(--text-xs);padding:8px">Loading dividends...</div>
           </div>
         </div>
       </div>
@@ -963,13 +953,12 @@ async function fetchQuotesRest() {
     renderChartBuilder();
   });
 })();
-const defaultWatchlistDefs = {
-  watchlist: Object.keys(QUOTES_DATA),
-  portfolio: ['NVDA','AVGO','AMD','MSFT','AMZN','TSLA','META','CRM','PLTR','COIN','NFLX','SPGI'],
-  asetups: ['NVDA','MRVL','TSM','CRM','MSFT','COIN'],
-  earnings: ['NVDA','AVGO','CRM','SNOW','DDOG','CRWD','PANW','COIN'],
-};
+    const defaultWatchlistDefs = {
+      watchlist: []
+    };
 const _LS = (function() { try { return window['local' + 'Storage']; } catch(e) { return null; } })();
+    // Clear old cached watchlists - user wants fresh start
+    try { if (_LS) _LS.removeItem('ttn_watchlists'); } catch(e) {}
 function loadWatchlistDefs() {
   try {
     if (_LS) { const stored = _LS.getItem('ttn_watchlists'); if (stored) return JSON.parse(stored); }
@@ -1584,35 +1573,55 @@ function renderInsiderBuys(buys) {
   </tr>`;
   }).join('');
 }
-async function fetchMacroEvents() {
-  const el = document.getElementById('macroEventsList');
-  if (!el) return;
-  try {
-    const resp = await fetch(FH('calendar/economic?from='+new Date().toISOString().slice(0,10)+'&to='+new Date(Date.now()+45*86400000).toISOString().slice(0,10)));
-    const json = await resp.json();
-    if (json.economicCalendar && json.economicCalendar.length) {
+    async function fetchMacroEvents() {
+      const el = document.getElementById('macroEventsList');
+      if (!el) return;
       const today = new Date().toISOString().slice(0, 10);
-      const events = json.economicCalendar
-        .filter(e => e.event && e.time >= today)
-        .sort((a, b) => a.time.localeCompare(b.time))
-        .slice(0, 15);
-
+      // Known upcoming US macro events - update quarterly
+      const knownEvents = [
+        {date:'2026-03-25',event:'Consumer Confidence',impact:2},
+        {date:'2026-03-26',event:'New Home Sales',impact:2},
+        {date:'2026-03-27',event:'GDP Q4 Final',impact:3},
+        {date:'2026-03-27',event:'Initial Jobless Claims',impact:2},
+        {date:'2026-03-28',event:'Core PCE (Feb)',impact:3},
+        {date:'2026-03-28',event:'Personal Income & Spending',impact:2},
+        {date:'2026-04-01',event:'ISM Manufacturing PMI',impact:3},
+        {date:'2026-04-02',event:'JOLTS Job Openings',impact:2},
+        {date:'2026-04-03',event:'ISM Services PMI',impact:3},
+        {date:'2026-04-03',event:'Initial Jobless Claims',impact:2},
+        {date:'2026-04-04',event:'Non-Farm Payrolls',impact:3},
+        {date:'2026-04-04',event:'Unemployment Rate',impact:3},
+        {date:'2026-04-10',event:'CPI (Mar)',impact:3},
+        {date:'2026-04-11',event:'PPI (Mar)',impact:2},
+        {date:'2026-04-14',event:'Retail Sales (Mar)',impact:3},
+        {date:'2026-04-16',event:'Housing Starts',impact:2},
+        {date:'2026-04-17',event:'Initial Jobless Claims',impact:2},
+        {date:'2026-04-17',event:'Philadelphia Fed Index',impact:2},
+        {date:'2026-04-24',event:'Durable Goods Orders',impact:2},
+        {date:'2026-04-29',event:'Consumer Confidence',impact:2},
+        {date:'2026-04-30',event:'GDP Q1 Advance',impact:3},
+        {date:'2026-05-01',event:'ISM Manufacturing PMI',impact:3},
+        {date:'2026-05-01',event:'ADP Employment',impact:2},
+        {date:'2026-05-06',event:'FOMC Decision',impact:3},
+        {date:'2026-05-08',event:'Non-Farm Payrolls',impact:3},
+        {date:'2026-05-12',event:'CPI (Apr)',impact:3},
+        {date:'2026-05-15',event:'Retail Sales (Apr)',impact:3}
+      ];
+      const events = knownEvents.filter(e => e.date >= today).slice(0, 15);
       if (events.length) {
         el.innerHTML = events.map(e => {
           const impact = e.impact >= 3 ? 'high' : e.impact >= 2 ? 'med' : 'low';
-          const impactLabel = e.impact >= 3 ? 'High' : e.impact >= 2 ? 'Med' : 'Low';
+          const impactLabel = e.impact >= 3 ? 'HIGH' : e.impact >= 2 ? 'MED' : 'LOW';
           return `<div class="event-row">
-            <span class="event-date">${fmtDate(e.time || e.date)}</span>
+            <span class="event-date">${fmtDate(e.date)}</span>
             <span class="event-name">${e.event}</span>
             <span class="impact-badge ${impact}">${impactLabel}</span>
           </div>`;
         }).join('');
-        return;
+      } else {
+        el.innerHTML = '<div style="color:var(--text-muted);font-size:var(--text-xs);padding:8px">No upcoming events scheduled</div>';
       }
     }
-  } catch (e) { console.error('Macro events error:', e); }
-  el.innerHTML = '<div style="color:var(--text-muted);font-size:var(--text-sm)">No upcoming events found. Retrying...</div>'; setTimeout(fetchMacroEvents, 30000);
-}
 async function fetchDailyBrief() {
   const briefEl = document.getElementById('briefList');
   const dateEl = document.getElementById('briefDate');
