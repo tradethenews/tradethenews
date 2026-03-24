@@ -1003,6 +1003,28 @@ function subscribeNewTicker(ticker) {
       watchlistData.push({ ticker, name: q.name, price: q.price, chg: q.chg, pe: q.pe || null, fwdPE, fromHigh, vs200d, signal, sector: SECTORS[ticker] || 'Other', yearHigh, ma200 });
     } else {
       watchlistData.push({ ticker, name: ticker, price: 0, chg: 0, pe: null, fwdPE: null, fromHigh: 0, vs200d: 0, signal: 'Neutral', sector: 'Other', yearHigh: 0, ma200: 0 });
+                // Fetch live quote for tickers not in QUOTES_DATA
+          (async () => {
+            try {
+              const [qResp, pResp] = await Promise.all([
+                fetch(FH('quote?symbol='+ticker)),
+                fetch(FH('stock/profile2?symbol='+ticker))
+              ]);
+              const qData = await qResp.json();
+              const pData = await pResp.json();
+              const entry = watchlistData.find(w => w.ticker === ticker);
+              if (entry && qData && qData.c) {
+                entry.price = qData.c;
+                entry.chg = qData.dp || 0;
+                entry.name = pData.name || ticker;
+                entry.yearHigh = qData.h || qData.c;
+                const prevClose = qData.pc || qData.c;
+                if (prevClose > 0) entry.chg = ((qData.c - prevClose) / prevClose * 100);
+                QUOTES_DATA[ticker] = { name: pData.name || ticker, price: qData.c, pe: 0, eps: 0, chg: entry.chg };
+                renderWatchlist();
+              }
+            } catch(e) { console.log('Quote fetch failed for', ticker, e); }
+          })();
     }
     subscribeNewTicker(ticker);
   }
