@@ -860,6 +860,7 @@ function subscribeNewTicker(ticker) {
         fetchTickerData(ticker).then(d => { if(d){ const e=watchlistData.find(w=>w.ticker===ticker); if(e){e.name=d.name;e.price=d.price;e.chg=d.chg;e.pe=d.pe;e.fwdPE=d.fwdPe;e.vs200d=MA200_DATA[ticker]?((d.price-MA200_DATA[ticker].ma200)/MA200_DATA[ticker].ma200*100):0;e.fromHigh=d.yearHigh>0?((d.price-d.yearHigh)/d.yearHigh*100):0;e.signal=d.signal;e.sector=SECTORS[ticker]||'Other';renderWatchlist();}} });
       renderWatchlist();
 }
+}
 function updateTickerInputBar() {
   const bar = document.getElementById('wlTickerInputBar');
   if (bar) bar.style.display = (watchlistDefs[activeWatchlist] != null) ? 'flex' : 'none';
