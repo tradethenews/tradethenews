@@ -606,16 +606,19 @@ const QUOTES_DATA = {};
     const SEGMENTS = {};
     const SENTIMENT = {};
     const SECTORS = {};
+          const FINANCIALS = {};
     let watchlistData = [];
 
     // Live data fetcher for any ticker
     async function fetchTickerData(ticker) {
       try {
+              const ctrl = new AbortController(); const tmr = setTimeout(() => ctrl.abort(), 8000); const opts = {signal: ctrl.signal};
         const [qResp, mResp, pResp] = await Promise.all([
-          fetch(FH('quote?symbol='+ticker)),
-          fetch(FH('stock/metric?symbol='+ticker+'&metric=all')),
-          fetch(FH('stock/profile2?symbol='+ticker))
+          fetch(FH('quote?symbol='+ticker), opts),
+          fetch(FH('stock/metric?symbol='+ticker+'&metric=all'), opts),
+          fetch(FH('stock/profile2?symbol='+ticker), opts)
         ]);
+              clearTimeout(tmr);
         const q = await qResp.json();
         const m = await mResp.json();
         const p = await pResp.json();
