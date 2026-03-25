@@ -646,17 +646,11 @@ const QUOTES_DATA = {};
       const tickers = Object.values(watchlistDefs).flat().filter(Boolean);
       const unique = [...new Set(tickers)];
       if (!unique.length) { renderWatchlist(); return; }
-      const el = document.getElementById('wlBody');
-      if (el) el.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--text-muted);padding:16px">Loading live data...</td></tr>';
+      unique.forEach(t => { if (!watchlistData.find(w=>w.ticker===t)) watchlistData.push({ticker:t,name:t,price:0,chg:0,pe:null,fwdPE:null,fromHigh:0,vs200d:0,signal:'Neutral',sector:'Other',yearHigh:0,ma200:0}); });
+      renderWatchlist();
       for (let i = 0; i < unique.length; i++) {
         const t = unique[i];
-        const data = await fetchTickerData(t);
-        if (data) {
-          const exists = watchlistData.find(w => w.ticker === t);
-          if (!exists) watchlistData.push(data);
-          else Object.assign(exists, data);
-        }
-        renderWatchlist();
+        try { const data = await fetchTickerData(t); if(data){const e=watchlistData.find(w=>w.ticker===t);if(e)Object.assign(e,data);renderWatchlist();} } catch(e){}
         if (i < unique.length - 1) await sleep(350);
       }
     }
