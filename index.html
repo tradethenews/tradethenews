@@ -1472,14 +1472,14 @@ function renderInsiderBuys(buys) {
       const today = new Date().toISOString().slice(0,10);
       const end = new Date(Date.now()+30*86400000).toISOString().slice(0,10);
       try {
-            const resp = await fetchWithProxy('https://api.tradingeconomics.com/calendar/country/united%20states/'+today+'/'+end+'?c=guest:guest&f=json');
+            const resp = await fetch(FH('calendar/economic?from='+today+'&to='+end));
         const data = await resp.json();
-        const events = (Array.isArray(data)?data:[]).filter(e => e.Date && e.Date.slice(0,10) >= today && e.Category).slice(0,15);
+        const raw = data && data.economicCalendar ? data.economicCalendar : (Array.isArray(data)?data:[]); const events = raw.filter(e => (e.time||e.Date||'').slice(0,10) >= today && (e.event||e.Category)).slice(0,15);
         if (events.length) {
           el.innerHTML = events.map(e => {
-            const impact = e.Importance >= 3 ? 'high' : e.Importance >= 2 ? 'med' : 'low';
-            const impactLabel = e.Importance >= 3 ? 'HIGH' : e.Importance >= 2 ? 'MED' : 'LOW';
-            return `<div class="event-row"><span class="event-date">${fmtDate(e.Date.slice(0,10))}</span><span class="event-name">${e.Category}</span><span class="impact-badge ${impact}">${impactLabel}</span></div>`;
+            const impact = (e.impact||'').toLowerCase()==='high' ? 'high' : (e.impact||'').toLowerCase()==='medium' ? 'med' : 'low';
+            const impactLabel = (e.impact||'').toLowerCase()==='high' ? 'high' : (e.impact||'').toLowerCase()==='medium' ? 'med' : 'low';
+            return `<div class="event-row"><span class="event-date">${fmtDate((e.time||e.Date||'').slice(0,10))}</span><span class="event-name">${e.event||e.Category}</span><span class="impact-badge ${impact}">${impactLabel}</span></div>`;
           }).join('');
         } else { el.innerHTML = '<div style="color:var(--text-muted);padding:8px">No upcoming events</div>'; }
       } catch(e) {
@@ -1487,7 +1487,7 @@ function renderInsiderBuys(buys) {
         el.innerHTML = '<div style="color:var(--text-muted);padding:8px">Unable to load events</div>';
       }
     }
-    fetchDailyBrief() {
+    async function fetchDailyBrief() {
   const briefEl = document.getElementById('briefList');
   const dateEl = document.getElementById('briefDate');
   if (!briefEl) return;
@@ -1828,7 +1828,7 @@ async function fetchFedWatch() {
       var el = document.getElementById('fedwatchGrid');
       if (!el) return;
       try {
-            var resp = await fetchWithProxy('https://www.federalreserve.gov/monetarypolicy/fomccalendars.htm');
+            throw new Error('use fallback');
         var html = await resp.text();
         var parser = new DOMParser();
         var doc = parser.parseFromString(html, 'text/html');
@@ -1866,7 +1866,7 @@ async function fetchFedWatch() {
         }
       } catch(e) {
         console.log('FedWatch error:', e);
-            var fallbackDates = [{date:'2025-05-07',label:'May 7'},{date:'2025-06-18',label:'Jun 18'},{date:'2025-07-30',label:'Jul 30'},{date:'2025-09-17',label:'Sep 17'},{date:'2025-10-29',label:'Oct 29'},{date:'2025-12-17',label:'Dec 17'}];
+            var fallbackDates = [{date:'2026-05-06',label:'May 6'},{date:'2026-06-17',label:'Jun 17'},{date:'2026-07-29',label:'Jul 29'},{date:'2026-09-16',label:'Sep 16'},{date:'2026-10-28',label:'Oct 28'},{date:'2026-12-16',label:'Dec 16'}];
     var t2 = new Date().toISOString().slice(0,10);
     var fb = fallbackDates.filter(function(m){return m.date >= t2;});
     if (fb.length) { el.innerHTML = fb.map(function(m){ return '<div class="fedwatch-card"><div class="fedwatch-date">'+m.label+'</div><div class="fedwatch-prob" style="color:var(--accent)">--</div><div class="fedwatch-label">FOMC Meeting</div></div>'; }).join(''); }
