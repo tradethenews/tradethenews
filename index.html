@@ -637,7 +637,7 @@ const QUOTES_DATA = {};
         OHLCV_DATA[ticker] = {yearHigh, latestClose:q.c};
         MA200_DATA[ticker] = {ma200};
         SECTORS[ticker] = sector;
-        return {ticker, name, price:q.c, pe, fwdPe:fwdPE, eps, chg, signal:chg>1?'Bullish':chg<-1?'Bearish':'Neutral', sector, yearHigh, ma200};
+        return {ticker, name, price:q.c, pe, eps, chg, signal:chg>1?'Bullish':chg<-1?'Bearish':'Neutral', sector, fwdPE:fwdPE, fromHigh:yearHigh>0?((q.c-yearHigh)/yearHigh*100):0, vs200d:ma200>0?((q.c-ma200)/ma200*100):0};
       } catch(e) { console.log('fetchTickerData error:', ticker, e); return null; }
     }
 
@@ -854,7 +854,7 @@ function subscribeNewTicker(ticker) {
     } else {
       watchlistData.push({ ticker, name: ticker, price: 0, chg: 0, pe: null, fwdPE: null, fromHigh: 0, vs200d: 0, signal: 'Neutral', sector: 'Other', yearHigh: 0, ma200: 0 });
   }
-        fetchTickerData(ticker).then(d => { if(d){ const e=watchlistData.find(w=>w.ticker===ticker); if(e){e.name=d.name;e.price=d.price;e.chg=d.chg;e.pe=d.pe;e.fwdPE=d.fwdPe;e.vs200d=MA200_DATA[ticker]?((d.price-MA200_DATA[ticker].ma200)/MA200_DATA[ticker].ma200*100):0;e.fromHigh=d.yearHigh>0?((d.price-d.yearHigh)/d.yearHigh*100):0;e.signal=d.signal;e.sector=SECTORS[ticker]||'Other';renderWatchlist();}} });
+        fetchTickerData(ticker).then(d => { if(d){ const e=watchlistData.find(w=>w.ticker===ticker); if(e){Object.assign(e,d);e.price=d.price;e.chg=d.chg;e.pe=d.pe;e.fwdPE=d.fwdPe;e.vs200d=MA200_DATA[ticker]?((d.price-MA200_DATA[ticker].ma200)/MA200_DATA[ticker].ma200*100):0;e.fromHigh=d.yearHigh>0?((d.price-d.yearHigh)/d.yearHigh*100):0;e.signal=d.signal;e.sector=SECTORS[ticker]||'Other';renderWatchlist();}} });
       renderWatchlist();
 }
 }
